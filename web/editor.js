@@ -1,5 +1,4 @@
 import {basicSetup, EditorView} from "codemirror";
-import {EditorState} from "@codemirror/state";
 import {StreamLanguage} from "@codemirror/language";
 
 const nail = StreamLanguage.define({
@@ -27,18 +26,16 @@ let editor;
 window.NailEditor = {
   mount(elementId, initial, onChange) {
     editor = new EditorView({
-      state: EditorState.create({
-        doc: initial,
-        extensions: [
-          basicSetup,
-          nail,
-          EditorView.lineWrapping,
-          theme,
-          EditorView.updateListener.of(update => {
-            if (update.docChanged) onChange(update.state.doc.toString());
-          })
-        ]
-      }),
+      doc: initial,
+      extensions: [
+        basicSetup,
+        nail,
+        EditorView.lineWrapping,
+        theme,
+        EditorView.updateListener.of(update => {
+          if (update.docChanged) onChange(update.state.doc.toString());
+        })
+      ],
       parent: document.getElementById(elementId)
     });
   },
