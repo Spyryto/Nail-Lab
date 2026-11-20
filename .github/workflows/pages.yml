@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,6 +37,10 @@ jobs:
         run: npm run build
       - name: Test artifacts and real Nail runtime
         run: npm test
+      - name: Install browser for UI tests
+        run: npx playwright install --with-deps chromium
+      - name: Test mobile browser navigation
+        run: npm run test:browser
       - name: Upload preview build
         uses: actions/upload-artifact@v4
         with:
@@ -53,7 +57,7 @@ jobs:
 
   deploy:
     if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build
     environment:
       name: github-pages

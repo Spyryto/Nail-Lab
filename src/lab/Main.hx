@@ -127,7 +127,30 @@ class Main {
   }
 
   static function main():Void {
-    NailEditor.mount("code-editor", source, changed);
+    // Navigation is independent of the editor: an editor failure cannot disable buttons.
+    newWorker();
+    on("nav-read", function() show("read"));
+    on("nav-editor", function() show("editor"));
+    on("nav-inspect", function() show("inspect"));
+    on("nav-history", function() show("history"));
+    on("read-try", function() {
+      show("editor");
+      try NailEditor.focus() catch (_:Dynamic) {}
+    });
+    on("run-button", run);
+    on("stop-button", stop);
+    on("inspect-refresh", inspect);
+    on("tab-expand", function() inspectTab("expand"));
+    on("tab-types", function() inspectTab("types"));
+    inspectTab("expand");
+    show("read");
+
+    try {
+      NailEditor.mount("code-editor", source, changed);
+    } catch (error:Dynamic) {
+      text("code-status", "Editor non disponibile: " + Std.string(error));
+      return;
+    }
     NailStorage.load(STORAGE_KEY).then(function(saved) {
       if (saved != null && saved.length > 0) {
         source = saved;
@@ -139,22 +162,5 @@ class Main {
       text("code-status", "Memoria locale non disponibile");
       return null;
     });
-
-    newWorker();
-    on("nav-read", function() show("read"));
-    on("nav-editor", function() show("editor"));
-    on("nav-inspect", function() show("inspect"));
-    on("nav-history", function() show("history"));
-    on("read-try", function() {
-      show("editor");
-      NailEditor.focus();
-    });
-    on("run-button", run);
-    on("stop-button", stop);
-    on("inspect-refresh", inspect);
-    on("tab-expand", function() inspectTab("expand"));
-    on("tab-types", function() inspectTab("types"));
-    inspectTab("expand");
-    show("read");
   }
 }
