@@ -11,7 +11,7 @@ import lab.Bridges.NailStorage;
 /** Single-column portrait PWA: the UI does not implement a Nail parser or VM. */
 class Main {
   static inline var STORAGE_KEY = "v0.54:core-ast:source";
-  static inline var DEFAULT_SOURCE = "nail 0.54 ;\ndef identityLab x = x ;\nidentityLab 42 ;";
+  static inline var DEFAULT_SOURCE = "nail 0.54 ;\ndef identityLab x = x ;\nidentityLab true ;";
   static var source:String = DEFAULT_SOURCE;
   static var section:String = "read";
   static var worker:Worker;
@@ -68,10 +68,12 @@ class Main {
           ? Json.stringify(msg.result, null, "  ")
           : "Errore: " + Std.string(msg.error));
       } else if (msg.kind == "inspect") {
-        text("expand-output", msg.ok ? Std.string(msg.expanded) : "Errore: " + Std.string(msg.error));
-        text("types-output", msg.ok
-          ? Json.stringify(msg.analysis, null, "  ")
-          : "Errore: " + Std.string(msg.error));
+        text("expand-output", msg.expandError != null
+          ? "Espansione non disponibile: " + Std.string(msg.expandError)
+          : (msg.ok ? Std.string(msg.expanded) : "Errore: " + Std.string(msg.error)));
+        text("types-output", msg.analysisError != null
+          ? "Analisi non disponibile: " + Std.string(msg.analysisError)
+          : (msg.ok ? Json.stringify(msg.analysis, null, "  ") : "Errore: " + Std.string(msg.error)));
       }
     };
     worker.onerror = function(_) {

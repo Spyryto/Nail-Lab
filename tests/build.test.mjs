@@ -4,7 +4,7 @@ import {readFile, stat} from "node:fs/promises";
 import {execFileSync} from "node:child_process";
 import vm from "node:vm";
 
-const source = "nail 0.54 ;\ndef identityLab x = x ;\nidentityLab 42 ;";
+const source = "nail 0.54 ;\ndef identityLab x = x ;\nidentityLab true ;";
 test("PWA shell and compilation artifacts are present", async () => {
   for (const path of ["index.html", "styles.css", "app.js", "editor.js", "runtime-worker.js", "sw.js", "version.json", "manifest.webmanifest", "runtime/v0.54/nailseed.js"]) {
     assert.ok((await stat(new URL("../dist/" + path, import.meta.url))).size > 0, path);
@@ -32,12 +32,20 @@ test("the actual browser Worker loads Nail 0.54 and executes the lesson", async 
   assert.equal(typeof sandbox.NailSeed?.create,"function", "Browser-global NailSeed API must be available");
   sandbox.onmessage({data:{kind:"run",id:1,source}});
   assert.equal(messages[0]?.ok,true,JSON.stringify(messages[0]));
-  assert.match(JSON.stringify(messages[0].result),/42/);
+  assert.match(JSON.stringify(messages[0].result),/true/);
   sandbox.onmessage({data:{kind:"inspect",id:2,source}});
   assert.equal(messages[1]?.ok,true,JSON.stringify(messages[1]));
   assert.equal(messages[1].analysis.ok,true,JSON.stringify(messages[1].analysis.diagnostics));
+  assert.equal(messages[1].expandError,null,JSON.stringify(messages[1]));
   assert.equal(typeof messages[1].expanded,"string");
   assert.ok(messages[1].expanded.length>0);
+  // Int literals expose a renderer limitation in the immutable v0.54 toolchain.
+  // The UI must still show the independent analysis instead of discarding it.
+  const numeric = "nail 0.54 ;\ndef identityLab x = x ;\nidentityLab 42 ;";
+  sandbox.onmessage({data:{kind:"inspect",id:3,source:numeric}});
+  assert.equal(messages[2]?.ok,true,JSON.stringify(messages[2]));
+  assert.equal(messages[2].analysis?.ok,true,JSON.stringify(messages[2]));
+  assert.equal(typeof messages[2].expandError,"string");
 });
 test("worker, update controller and service worker pass syntax checks", () => {
   for (const filename of ["runtime-worker.js","updates.js","storage.js","sw.js"]) {

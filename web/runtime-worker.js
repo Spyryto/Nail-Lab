@@ -18,9 +18,12 @@ self.onmessage = function(event) {
       const result = vm.runPlain(source);
       self.postMessage({id, kind, ok: true, result});
     } else if (kind === "inspect") {
-      const analysis = self.NailSeed.analyze(source);
-      const expanded = self.NailSeed.expand(source);
-      self.postMessage({id, kind, ok: true, analysis, expanded});
+      let analysis = null, expanded = null, analysisError = null, expandError = null;
+      try { analysis = self.NailSeed.analyze(source); }
+      catch (error) { analysisError = String(error); }
+      try { expanded = self.NailSeed.expand(source); }
+      catch (error) { expandError = String(error); }
+      self.postMessage({id, kind, ok: true, analysis, expanded, analysisError, expandError});
     }
   } catch (error) {
     self.postMessage({id, kind, ok: false, error: String(error)});
