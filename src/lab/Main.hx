@@ -11,7 +11,7 @@ import lab.Bridges.NailStorage;
 /** Single-column portrait PWA: the UI does not implement a Nail parser or VM. */
 class Main {
   static inline var STORAGE_KEY = "v0.54:core-ast:source";
-  static inline var DEFAULT_SOURCE = "nail 0.54 ;\ndef id x = x ;\nid 42 ;";
+  static inline var DEFAULT_SOURCE = "nail 0.54 ;\ndef identityLab x = x ;\nidentityLab 42 ;";
   static var source:String = DEFAULT_SOURCE;
   static var section:String = "read";
   static var worker:Worker;

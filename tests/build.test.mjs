@@ -4,7 +4,7 @@ import {readFile, stat} from "node:fs/promises";
 import {execFileSync} from "node:child_process";
 import vm from "node:vm";
 
-const source = "nail 0.54 ;\ndef id x = x ;\nid 42 ;";
+const source = "nail 0.54 ;\ndef identityLab x = x ;\nidentityLab 42 ;";
 test("PWA shell and compilation artifacts are present", async () => {
   for (const path of ["index.html", "styles.css", "app.js", "editor.js", "runtime-worker.js", "sw.js", "version.json", "manifest.webmanifest", "runtime/v0.54/nailseed.js"]) {
     assert.ok((await stat(new URL("../dist/" + path, import.meta.url))).size > 0, path);
