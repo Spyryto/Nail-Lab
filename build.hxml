@@ -1,0 +1,4 @@
+-cp src
+-main lab.Main
+-js dist/app.js
+-D js-es=6

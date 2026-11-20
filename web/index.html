@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1726">
+  <meta name="description" content="Libro interattivo e laboratorio mobile per NailLang">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Nail Lab</title>
+</head>
+<body>
+  <header class="topbar">
+    <span class="wordmark"><span class="brand-symbol">N</span> Nail Lab</span>
+    <span class="version" aria-label="Versione Nail attiva">Nail v0.54</span>
+  </header>
+
+  <main id="content">
+    <section id="panel-read" class="panel" aria-labelledby="read-title">
+      <p class="eyebrow">LEZIONE 01 · ARCHITETTURA</p>
+      <h1 id="read-title">Cinque forme per un linguaggio</h1>
+      <p class="lede">Nail riduce le espressioni a cinque costruttori. Non è una semplificazione didattica: è il suo vero <strong>Core AST</strong>.</p>
+      <div class="explain">
+        <h2>I costruttori</h2>
+        <dl>
+          <div><dt>Literal</dt><dd>Un valore immediato.</dd></div>
+          <div><dt>Var</dt><dd>Un nome da risolvere nell'ambiente.</dd></div>
+          <div><dt>Lambda</dt><dd>Una funzione con un parametro e un corpo.</dd></div>
+          <div><dt>Apply</dt><dd>L'applicazione di una funzione a un argomento.</dd></div>
+          <div><dt>If</dt><dd>La scelta tra due espressioni.</dd></div>
+        </dl>
+      </div>
+      <h2>Provalo davvero</h2>
+      <p>Il programma definisce una funzione identità e la applica al valore <code>true</code>. Eseguilo nell'editor, poi osserva l'espansione e l'analisi dei tipi.</p>
+      <pre class="example"><code>nail 0.54 ;
+def identityLab x = x ;
+identityLab true ;</code></pre>
+      <button id="read-try" class="primary">Apri nell'editor <span aria-hidden="true">→</span></button>
+      <p class="footnote">Fonte: <a href="https://github.com/Spyryto/NailLang/blob/v0.54/src/nail/Ast.hx" target="_blank" rel="noopener">Ast.hx della versione 0.54</a>. Le lezioni storiche saranno aggiunte in successive iterazioni.</p>
+    </section>
+
+    <section id="panel-editor" class="panel" aria-labelledby="editor-title" hidden>
+      <p class="eyebrow">LABORATORIO · NAIL 0.54</p>
+      <h1 id="editor-title">Scrivi ed esegui</h1>
+      <p class="muted">Runtime reale di Nail, isolato in un Web Worker. Il codice si salva automaticamente sul dispositivo.</p>
+      <div id="code-editor" class="code-editor" role="group" aria-label="Editor del codice Nail"></div>
+      <div class="run-row">
+        <button id="run-button" class="primary">Esegui</button>
+        <button id="stop-button" class="secondary" hidden>Interrompi</button>
+      </div>
+      <p id="code-status" class="status" aria-live="polite">Caricamento del progetto…</p>
+      <h2>Risultato</h2>
+      <pre id="run-output" class="output" aria-live="polite">Premi Esegui.</pre>
+    </section>
+
+    <section id="panel-inspect" class="panel" aria-labelledby="inspect-title" hidden>
+      <p class="eyebrow">STRUMENTI · NAIL 0.54</p>
+      <h1 id="inspect-title">Dentro il compilatore</h1>
+      <p class="muted">Le informazioni provengono direttamente dalle API <code>NailSeed.expand</code> e <code>NailSeed.analyze</code>. Nessun parser simulato.</p>
+      <div class="tabs" role="tablist" aria-label="Vista di ispezione">
+        <button id="tab-expand" role="tab" aria-selected="true" class="tab">Core espanso</button>
+        <button id="tab-types" role="tab" aria-selected="false" class="tab">Tipi e simboli</button>
+      </div>
+      <div id="inspect-expand">
+        <p class="hint">Forma testuale del Core dopo parsing ed espansione; non è ancora un albero AST interattivo.</p>
+        <pre id="expand-output" class="output">Apri questa schermata per analizzare il sorgente.</pre>
+      </div>
+      <div id="inspect-types" hidden>
+        <p class="hint">Report strutturato: diagnostica, dichiarazioni, riferimenti e tipi inferiti.</p>
+        <pre id="types-output" class="output">Apri questa schermata per analizzare il sorgente.</pre>
+      </div>
+      <button id="inspect-refresh" class="secondary">Rianalizza</button>
+      <p class="footnote">Bytecode strutturato, AST navigabile e trace VM arriveranno quando saranno disponibili API di ispezione stabili, senza inventare dati.</p>
+    </section>
+
+    <section id="panel-history" class="panel" aria-labelledby="history-title" hidden>
+      <p class="eyebrow">CRONOLOGIA · PRIMI TRAGUARDI</p>
+      <h1 id="history-title">Come nasce Nail</h1>
+      <p class="muted">Il repository NailLang conserva una storia pubblica ricostruita per versioni. Non è la cronologia Git privata originale.</p>
+      <ol class="timeline">
+        <li><span class="tag">v0.1</span><strong>Il seme</strong><p>Visita la prima versione pubblica ricostruita.</p><a href="https://github.com/Spyryto/NailLang/tree/v0.1" target="_blank" rel="noopener">Apri il sorgente storico</a></li>
+        <li><span class="tag">v0.24</span><strong>Macro e trasformazioni</strong><p>Esplora il codice e la documentazione della release.</p><a href="https://github.com/Spyryto/NailLang/tree/v0.24" target="_blank" rel="noopener">Apri la release</a></li>
+        <li><span class="tag">v0.50</span><strong>Analisi per editor</strong><p>Nasce l'API strutturata per simboli, riferimenti e diagnostica.</p><a href="https://github.com/Spyryto/NailLang/blob/v0.50/docs/ANALYSIS.md" target="_blank" rel="noopener">Leggi la documentazione</a></li>
+        <li><span class="tag">v0.54</span><strong>Moduli compilati</strong><p>La versione eseguibile di questa prima iterazione del Lab.</p><a href="https://github.com/Spyryto/NailLang/releases/tag/v0.54" target="_blank" rel="noopener">Vedi gli artefatti</a></li>
+      </ol>
+      <p class="footnote">I runtime storici precedenti alla 0.54 non sono ancora caricabili in questa prima iterazione.</p>
+    </section>
+  </main>
+
+  <div id="update-banner" class="update-banner" hidden role="status">
+    <span>Nuova versione di Nail Lab disponibile.</span>
+    <button id="update-apply" class="primary small">Aggiorna</button>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Sezioni principali">
+    <button id="nav-read" aria-current="page"><span class="nav-icon" aria-hidden="true">▤</span><span>Leggi</span></button>
+    <button id="nav-editor"><span class="nav-icon" aria-hidden="true">⌘</span><span>Scrivi</span></button>
+    <button id="nav-inspect"><span class="nav-icon" aria-hidden="true">⌕</span><span>Esplora</span></button>
+    <button id="nav-history"><span class="nav-icon" aria-hidden="true">◷</span><span>Storia</span></button>
+  </nav>
+  <script src="./storage.js"></script>
+  <script src="./editor.js"></script>
+  <script src="./app.js"></script>
+  <script src="./updates.js"></script>
+</body>
+</html>
