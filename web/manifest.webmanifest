@@ -1,0 +1,20 @@
+{
+  "name": "Nail Lab",
+  "short_name": "Nail Lab",
+  "description": "Libro e laboratorio interattivo per NailLang",
+  "lang": "it",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d1726",
+  "theme_color": "#0d1726",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
