@@ -42,8 +42,8 @@ try {
   await page.waitForFunction(()=>document.getElementById("run-output").textContent.includes("true"),{timeout:12000});
   await page.getByRole("button",{name:"Esplora"}).click();
   await page.locator("#panel-inspect").waitFor({state:"visible",timeout:4000});
-  await page.getByRole("button",{name:"Tipi e simboli"}).click();
-  await page.waitForFunction(()=>document.getElementById("types-output").textContent.includes('"ok": true'),{timeout:12000});
+  await page.getByRole("tab",{name:"Tipi e simboli"}).click();
+  await page.waitForFunction(()=>document.getElementById("types-output").textContent.includes('"ok": true'),null,{timeout:12000});
   await page.getByRole("button",{name:"Storia"}).click();
   await page.locator("#panel-history").waitFor({state:"visible",timeout:4000});
   await page.getByRole("button",{name:"Leggi"}).click();
