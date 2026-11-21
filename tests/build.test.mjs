@@ -70,11 +70,12 @@ test("parse errors use Nail's verified source spans, not token counts", async ()
   assert.match(messages[1].diagnosticText,/riga 2, colonna \d+/);
   assert.doesNotMatch(messages[1].diagnosticText,/at token \d+/);
   assert.match(messages[1].expandDiagnosticText,/riga 2, colonna \d+/);
-  // Do not invent line/column for host failures with no source evidence.
-  sandbox.onmessage({data:{id:12,kind:"run",source:""}});
-  assert.equal(messages[2]?.ok,false);
-  if (!messages[2].diagnostic?.span)
-    assert.doesNotMatch(messages[2].error,/riga \d+, colonna \d+/);
+  // When Nail supplies no trustworthy span, preserve its original token reference.
+  const noSpan = vm.runInContext(
+    'formatDiagnostic({phase:"parse",message:"Unknown token at token 99",span:null})',
+    context
+  );
+  assert.equal(noSpan, "Sintassi: Unknown token at token 99");
 });
 
 test("worker, update controller and service worker pass syntax checks", () => {
