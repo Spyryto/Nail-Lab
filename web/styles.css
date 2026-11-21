@@ -32,3 +32,5 @@ button:disabled{opacity:.6}.small{min-height:34px!important;padding:6px 12px!imp
 .bottom-nav button[aria-current=page]{color:#b5dafe;font-weight:750}.nav-icon{font-size:24px;line-height:1.1}
 .update-banner{position:fixed;bottom:calc(78px + env(safe-area-inset-bottom));z-index:15;left:12px;right:12px;padding:12px;background:#254563;border:1px solid #75a5d5;box-shadow:0 7px 35px #0009;border-radius:12px;display:flex;align-items:center;gap:12px;justify-content:space-between;font-size:13px}
 @media(prefers-reduced-motion:no-preference){.primary:active,.secondary:active{transform:scale(.985)}}
+
+#error-jump{margin-top:10px;width:100%;}

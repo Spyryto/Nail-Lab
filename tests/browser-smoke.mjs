@@ -44,6 +44,26 @@ try {
   await page.locator("#panel-inspect").waitFor({state:"visible",timeout:4000});
   await page.getByRole("tab",{name:"Tipi e simboli"}).click();
   await page.waitForFunction(()=>document.getElementById("types-output").textContent.includes('"ok": true'),null,{timeout:12000});
+  // A syntax error must display source coordinates and offer direct navigation.
+  await page.getByRole("button",{name:"Scrivi"}).click();
+  await page.locator(".cm-content").fill("nail 0.54 ;\ndef broken x = ;\nbroken true ;");
+  await page.getByRole("button",{name:"Esegui",exact:true}).click();
+  await page.waitForFunction(
+    ()=>document.getElementById("run-output").textContent.includes("riga 2, colonna"),
+    null,{timeout:12000}
+  );
+  const renderedError = await page.locator("#run-output").innerText();
+  assert.doesNotMatch(renderedError,/at token \d+/);
+  await page.getByRole("button",{name:/Vai a riga 2, colonna/}).click();
+  await page.waitForFunction(
+    () => document.activeElement?.closest(".cm-editor") !== null,
+    null,{timeout:3000}
+  );
+  const currentLine = await page.evaluate(() =>
+    window.getSelection()?.anchorNode?.parentElement?.closest(".cm-line")?.textContent ?? ""
+  );
+  assert.match(currentLine,/def broken x = ;/);
+
   await page.getByRole("button",{name:"Storia"}).click();
   await page.locator("#panel-history").waitFor({state:"visible",timeout:4000});
   await page.getByRole("button",{name:"Leggi"}).click();
