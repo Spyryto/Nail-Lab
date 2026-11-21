@@ -55,7 +55,14 @@ try {
   const renderedError = await page.locator("#run-output").innerText();
   assert.doesNotMatch(renderedError,/at token \d+/);
   await page.getByRole("button",{name:/Vai a riga 2, colonna/}).click();
-  assert.equal(await page.locator(".cm-editor.cm-focused").count(),1);
+  await page.waitForFunction(
+    () => document.activeElement?.closest(".cm-editor") !== null,
+    null,{timeout:3000}
+  );
+  const currentLine = await page.evaluate(() =>
+    window.getSelection()?.anchorNode?.parentElement?.closest(".cm-line")?.textContent ?? ""
+  );
+  assert.match(currentLine,/def broken x = ;/);
 
   await page.getByRole("button",{name:"Storia"}).click();
   await page.locator("#panel-history").waitFor({state:"visible",timeout:4000});
