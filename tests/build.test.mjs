@@ -47,6 +47,36 @@ test("the actual browser Worker loads Nail 0.54 and executes the lesson", async 
   assert.equal(messages[2].analysis?.ok,true,JSON.stringify(messages[2]));
   assert.equal(typeof messages[2].expandError,"string");
 });
+test("parse errors use Nail's verified source spans, not token counts", async () => {
+  const runtime = await readFile(new URL("../dist/runtime/v0.54/nailseed.js",import.meta.url),"utf8");
+  const worker = await readFile(new URL("../dist/runtime-worker.js",import.meta.url),"utf8");
+  const messages = [];
+  const sandbox = {console};
+  sandbox.self = sandbox;
+  sandbox.postMessage = result => messages.push(result);
+  const context = vm.createContext(sandbox);
+  sandbox.importScripts = path => {
+    assert.equal(path,"./runtime/v0.54/nailseed.js");
+    vm.runInContext(runtime,context,{timeout:10000});
+  };
+  vm.runInContext(worker,context,{timeout:10000});
+  const bad = "nail 0.54 ;\ndef broken x = ;\nbroken true ;";
+  sandbox.onmessage({data:{id:10,kind:"run",source:bad}});
+  assert.equal(messages[0]?.ok,false,JSON.stringify(messages[0]));
+  assert.match(messages[0].error,/riga 2, colonna \d+/);
+  assert.doesNotMatch(messages[0].error,/at token \d+/);
+  assert.equal(messages[0].diagnostic?.span?.line,2);
+  sandbox.onmessage({data:{id:11,kind:"inspect",source:bad}});
+  assert.match(messages[1].diagnosticText,/riga 2, colonna \d+/);
+  assert.doesNotMatch(messages[1].diagnosticText,/at token \d+/);
+  assert.match(messages[1].expandDiagnosticText,/riga 2, colonna \d+/);
+  // Do not invent line/column for host failures with no source evidence.
+  sandbox.onmessage({data:{id:12,kind:"run",source:""}});
+  assert.equal(messages[2]?.ok,false);
+  if (!messages[2].diagnostic?.span)
+    assert.doesNotMatch(messages[2].error,/riga \d+, colonna \d+/);
+});
+
 test("worker, update controller and service worker pass syntax checks", () => {
   for (const filename of ["runtime-worker.js","updates.js","storage.js","sw.js"]) {
     execFileSync(process.execPath,["--check",new URL("../dist/"+filename,import.meta.url).pathname]);

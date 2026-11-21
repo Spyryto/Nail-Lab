@@ -17,6 +17,25 @@ class Main {
   static var worker:Worker;
   static var saveTimer:Null<Int> = null;
   static var serial:Int = 0;
+  static var errorLine:Int = 0;
+  static var errorColumn:Int = 0;
+
+  static function clearErrorJump():Void {
+    errorLine = 0;
+    errorColumn = 0;
+    el("error-jump").setAttribute("hidden", "");
+  }
+
+  static function showErrorJump(diagnostic:Dynamic):Void {
+    clearErrorJump();
+    if (diagnostic == null || diagnostic.span == null) return;
+    var span:Dynamic = diagnostic.span;
+    if (span.line == null || span.column == null || span.line < 1 || span.column < 1) return;
+    errorLine = Std.int(span.line);
+    errorColumn = Std.int(span.column);
+    text("error-jump", "Vai a riga " + errorLine + ", colonna " + errorColumn);
+    el("error-jump").removeAttribute("hidden");
+  }
 
   static function el(id:String):Element {
     var node = Browser.document.getElementById(id);
@@ -41,6 +60,7 @@ class Main {
 
   static function changed(value:String):Void {
     source = value;
+    clearErrorJump();
     text("code-status", "Modifiche in salvataggio…");
     if (saveTimer != null) Browser.window.clearTimeout(saveTimer);
     saveTimer = Browser.window.setTimeout(function() {
@@ -66,14 +86,19 @@ class Main {
         el("stop-button").setAttribute("hidden", "");
         text("run-output", msg.ok
           ? Json.stringify(msg.result, null, "  ")
-          : "Errore: " + Std.string(msg.error));
+          : Std.string(msg.error));
+        showErrorJump(msg.ok ? null : msg.diagnostic);
       } else if (msg.kind == "inspect") {
         text("expand-output", msg.expandError != null
-          ? "Espansione non disponibile: " + Std.string(msg.expandError)
-          : (msg.ok ? Std.string(msg.expanded) : "Errore: " + Std.string(msg.error)));
+          ? (msg.expandDiagnosticText != null
+            ? Std.string(msg.expandDiagnosticText)
+            : "Espansione non disponibile: " + Std.string(msg.expandError))
+          : (msg.ok ? Std.string(msg.expanded) : Std.string(msg.error)));
         text("types-output", msg.analysisError != null
           ? "Analisi non disponibile: " + Std.string(msg.analysisError)
-          : (msg.ok ? Json.stringify(msg.analysis, null, "  ") : "Errore: " + Std.string(msg.error)));
+          : (msg.diagnosticText != null
+            ? Std.string(msg.diagnosticText)
+            : (msg.ok ? Json.stringify(msg.analysis, null, "  ") : Std.string(msg.error))));
       }
     };
     worker.onerror = function(_) {
@@ -86,6 +111,7 @@ class Main {
   }
 
   static function run():Void {
+    clearErrorJump();
     if (source.length > 16000) {
       text("run-output", "Esempio troppo lungo (limite 16.000 caratteri).");
       return;
@@ -100,6 +126,7 @@ class Main {
 
   static function stop():Void {
     newWorker();
+    clearErrorJump();
     text("run-output", "Esecuzione interrotta.");
     text("run-button", "Esegui");
     el("run-button").removeAttribute("disabled");
@@ -139,6 +166,9 @@ class Main {
     });
     on("run-button", run);
     on("stop-button", stop);
+    on("error-jump", function() {
+      if (errorLine > 0) NailEditor.goTo(errorLine, errorColumn);
+    });
     on("inspect-refresh", inspect);
     on("tab-expand", function() inspectTab("expand"));
     on("tab-types", function() inspectTab("types"));

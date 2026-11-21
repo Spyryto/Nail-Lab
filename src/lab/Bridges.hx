@@ -6,6 +6,7 @@ extern class NailEditor {
   public static function getValue():String;
   public static function setValue(value:String):Void;
   public static function focus():Void;
+  public static function goTo(line:Int, column:Int):Bool;
 }
 
 @:native("NailStorage")

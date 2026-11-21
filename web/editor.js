@@ -43,5 +43,17 @@ window.NailEditor = {
   setValue(value) {
     editor.dispatch({changes: {from: 0, to: editor.state.doc.length, insert: value}});
   },
-  focus() { editor.focus(); }
+  focus() { editor.focus(); },
+  goTo(line, column) {
+    if (!editor || !Number.isInteger(line) || line < 1 || line > editor.state.doc.lines)
+      return false;
+    const info = editor.state.doc.line(line);
+    const pos = info.from + Math.min(Math.max(0, column - 1), info.length);
+    editor.dispatch({
+      selection: {anchor: pos},
+      effects: EditorView.scrollIntoView(pos, {y: "center"})
+    });
+    editor.focus();
+    return true;
+  }
 };
