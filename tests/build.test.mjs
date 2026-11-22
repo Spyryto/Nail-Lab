@@ -78,6 +78,31 @@ test("parse errors use Nail's verified source spans, not token counts", async ()
   assert.equal(noSpan, "Sintassi: Unknown token at token 99");
 });
 
+test("type errors report the original enclosing source form", async () => {
+  const runtime = await readFile(new URL("../dist/runtime/v0.54/nailseed.js",import.meta.url),"utf8");
+  const worker = await readFile(new URL("../dist/runtime-worker.js",import.meta.url),"utf8");
+  const messages = [], sandbox = {console};
+  sandbox.self = sandbox;
+  sandbox.postMessage = message => messages.push(message);
+  const context = vm.createContext(sandbox);
+  sandbox.importScripts = path => {
+    assert.equal(path, "./runtime/v0.54/nailseed.js");
+    vm.runInContext(runtime,context,{timeout:10000});
+  };
+  vm.runInContext(worker,context,{timeout:10000});
+  const wrong = "nail 0.54 ;\ndef wrong = true true ;";
+  sandbox.onmessage({data:{id:21,kind:"run",source:wrong}});
+  assert.equal(messages[0]?.ok,false,JSON.stringify(messages[0]));
+  assert.equal(messages[0].diagnostic?.phase,"type",JSON.stringify(messages[0]));
+  assert.equal(messages[0].diagnostic?.span?.line,2);
+  assert.ok(messages[0].diagnostic?.span?.end > messages[0].diagnostic?.span?.start);
+  assert.match(messages[0].error,/Tipo · riga 2, colonna \d+ \(forma\)/);
+  sandbox.onmessage({data:{id:22,kind:"inspect",source:wrong}});
+  assert.equal(messages[1]?.diagnostic?.phase,"type",JSON.stringify(messages[1]));
+  assert.equal(messages[1]?.diagnostic?.span?.line,2);
+  assert.match(messages[1].diagnosticText,/riga 2, colonna \d+ \(forma\)/);
+});
+
 test("worker, update controller and service worker pass syntax checks", () => {
   for (const filename of ["runtime-worker.js","updates.js","storage.js","sw.js"]) {
     execFileSync(process.execPath,["--check",new URL("../dist/"+filename,import.meta.url).pathname]);

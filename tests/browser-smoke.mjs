@@ -64,6 +64,26 @@ try {
   );
   assert.match(currentLine,/def broken x = ;/);
 
+  // A parse error is marked on the actual offending token in CodeMirror.
+  assert.equal(await page.locator(".cm-nail-diagnostic-token").count(),1);
+  // A type failure is attributed to the full enclosing form (Nail 0.54 semantics).
+  await page.locator(".cm-content").fill("nail 0.54 ;\ndef wrong = true true ;");
+  await page.getByRole("button",{name:"Esegui",exact:true}).click();
+  await page.waitForFunction(
+    ()=>document.getElementById("run-output").textContent.includes("Tipo · riga 2, colonna"),
+    null,{timeout:12000}
+  );
+  assert.match(await page.locator("#run-output").innerText(),/\(forma\)/);
+  await page.locator(".cm-nail-diagnostic-form").first().waitFor({state:"visible",timeout:3000});
+  await page.getByRole("button",{name:"Esplora"}).click();
+  await page.getByRole("tab",{name:"Tipi e simboli"}).click();
+  await page.waitForFunction(
+    ()=>document.getElementById("types-output").textContent.includes("Tipo · riga 2"),
+    null,{timeout:12000}
+  );
+  await page.getByRole("button",{name:/Vai a riga 2, colonna .* nell'editor/}).click();
+  await page.locator("#panel-editor").waitFor({state:"visible",timeout:3000});
+  await page.locator(".cm-nail-diagnostic-form").first().waitFor({state:"visible",timeout:3000});
   await page.getByRole("button",{name:"Storia"}).click();
   await page.locator("#panel-history").waitFor({state:"visible",timeout:4000});
   await page.getByRole("button",{name:"Leggi"}).click();
