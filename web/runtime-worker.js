@@ -52,17 +52,31 @@ self.onmessage = function(event) {
     if (loadError) throw new Error("Runtime non disponibile: " + loadError);
     if (typeof source !== "string" || source.length > 16000) throw new Error("Sorgente non valido o troppo lungo");
     if (kind === "run") {
+      // Type inference is optional in the raw Nail VM. The Lab is also a
+      // learning IDE, so report genuine static type failures before running.
+      // This is NOT an attempt to infer a failing token from the error text:
+      // 0.54 exposes the enclosing original form through analyze().diagnostics.
+      const analysis = analyzeSafely(source);
+      const staticDiagnostic = firstDiagnostic(analysis);
+      if (staticDiagnostic?.phase === "type") {
+        self.postMessage({
+          id, kind, source, ok: false,
+          error: formatDiagnostic(staticDiagnostic),
+          diagnostic: sourceLocation(staticDiagnostic) ? staticDiagnostic : null
+        });
+        return;
+      }
       try {
         const vm = self.NailSeed.create(100000);
         vm.loadStdlib();
         const result = vm.runPlain(source);
-        self.postMessage({id, kind, ok: true, result});
+        self.postMessage({id, kind, source, ok: true, result});
       } catch (error) {
         const original = String(error);
-        const diagnostic = firstDiagnostic(analyzeSafely(source));
+        const diagnostic = staticDiagnostic || firstDiagnostic(analyzeSafely(source));
         const matched = matchesExecutionFailure(diagnostic, original);
         self.postMessage({
-          id, kind, ok: false,
+          id, kind, source, ok: false,
           error: matched ? formatDiagnostic(diagnostic) : "Errore: " + original,
           diagnostic: matched && sourceLocation(diagnostic) ? diagnostic : null
         });
@@ -79,11 +93,12 @@ self.onmessage = function(event) {
         diagnostic?.phase === "parse" && /\bat token \d+\b/.test(expandError)
           ? formatDiagnostic(diagnostic) : null;
       self.postMessage({
-        id, kind, ok: true, analysis, expanded, analysisError, expandError,
+        id, kind, source, ok: true, analysis, expanded, analysisError, expandError,
+        diagnostic: diagnostic && sourceLocation(diagnostic) ? diagnostic : null,
         diagnosticText, expandDiagnosticText
       });
     }
   } catch (error) {
-    self.postMessage({id, kind, ok: false, error: "Errore: " + String(error)});
+    self.postMessage({id, kind, source, ok: false, error: "Errore: " + String(error)});
   }
 };

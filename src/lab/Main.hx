@@ -20,10 +20,13 @@ class Main {
   static var errorLine:Int = 0;
   static var errorColumn:Int = 0;
 
-  static function clearErrorJump():Void {
+  static function clearErrorJump(?clearEditorDecoration:Bool = true):Void {
     errorLine = 0;
     errorColumn = 0;
     el("error-jump").setAttribute("hidden", "");
+    el("inspect-jump").setAttribute("hidden", "");
+    if (clearEditorDecoration)
+      try NailEditor.clearDiagnostic() catch (_:Dynamic) {}
   }
 
   static function showErrorJump(diagnostic:Dynamic):Void {
@@ -33,8 +36,13 @@ class Main {
     if (span.line == null || span.column == null || span.line < 1 || span.column < 1) return;
     errorLine = Std.int(span.line);
     errorColumn = Std.int(span.column);
-    text("error-jump", "Vai a riga " + errorLine + ", colonna " + errorColumn);
+    var at = "Vai a riga " + errorLine + ", colonna " + errorColumn;
+    if (diagnostic.phase == "type") at += " (forma)";
+    text("error-jump", at);
+    text("inspect-jump", at + " nell'editor");
     el("error-jump").removeAttribute("hidden");
+    el("inspect-jump").removeAttribute("hidden");
+    try NailEditor.markDiagnostic(span, Std.string(diagnostic.phase)) catch (_:Dynamic) {}
   }
 
   static function el(id:String):Element {
@@ -60,7 +68,8 @@ class Main {
 
   static function changed(value:String):Void {
     source = value;
-    clearErrorJump();
+    // CodeMirror clears the decoration in its own update transaction.
+    clearErrorJump(false);
     text("code-status", "Modifiche in salvataggio…");
     if (saveTimer != null) Browser.window.clearTimeout(saveTimer);
     saveTimer = Browser.window.setTimeout(function() {
@@ -80,6 +89,8 @@ class Main {
     worker = new Worker("./runtime-worker.js");
     worker.onmessage = function(event:MessageEvent) {
       var msg:Dynamic = event.data;
+      // An older Worker response must not annotate a newly edited source.
+      if (msg.source != null && msg.source != source) return;
       if (msg.kind == "run") {
         text("run-button", "Esegui");
         el("run-button").removeAttribute("disabled");
@@ -99,6 +110,7 @@ class Main {
           : (msg.diagnosticText != null
             ? Std.string(msg.diagnosticText)
             : (msg.ok ? Json.stringify(msg.analysis, null, "  ") : Std.string(msg.error))));
+        showErrorJump(msg.diagnostic);
       }
     };
     worker.onerror = function(_) {
@@ -168,6 +180,12 @@ class Main {
     on("stop-button", stop);
     on("error-jump", function() {
       if (errorLine > 0) NailEditor.goTo(errorLine, errorColumn);
+    });
+    on("inspect-jump", function() {
+      if (errorLine > 0) {
+        show("editor");
+        NailEditor.goTo(errorLine, errorColumn);
+      }
     });
     on("inspect-refresh", inspect);
     on("tab-expand", function() inspectTab("expand"));
