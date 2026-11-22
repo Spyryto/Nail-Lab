@@ -20,7 +20,9 @@ const setDiagnostic = StateEffect.define();
 const diagnostics = StateField.define({
   create: () => Decoration.none,
   update(value, transaction) {
-    let mapped = value.map(transaction.changes);
+    // Clear on edits in the same update transaction. Never dispatch from an
+    // updateListener, which would cause a re-entrant CodeMirror update.
+    let mapped = transaction.docChanged ? Decoration.none : value.map(transaction.changes);
     for (const effect of transaction.effects) {
       if (!effect.is(setDiagnostic)) continue;
       const location = effect.value;

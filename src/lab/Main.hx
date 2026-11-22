@@ -20,12 +20,13 @@ class Main {
   static var errorLine:Int = 0;
   static var errorColumn:Int = 0;
 
-  static function clearErrorJump():Void {
+  static function clearErrorJump(?clearEditorDecoration:Bool = true):Void {
     errorLine = 0;
     errorColumn = 0;
     el("error-jump").setAttribute("hidden", "");
     el("inspect-jump").setAttribute("hidden", "");
-    try NailEditor.clearDiagnostic() catch (_:Dynamic) {}
+    if (clearEditorDecoration)
+      try NailEditor.clearDiagnostic() catch (_:Dynamic) {}
   }
 
   static function showErrorJump(diagnostic:Dynamic):Void {
@@ -67,7 +68,8 @@ class Main {
 
   static function changed(value:String):Void {
     source = value;
-    clearErrorJump();
+    // CodeMirror clears the decoration in its own update transaction.
+    clearErrorJump(false);
     text("code-status", "Modifiche in salvataggio…");
     if (saveTimer != null) Browser.window.clearTimeout(saveTimer);
     saveTimer = Browser.window.setTimeout(function() {
