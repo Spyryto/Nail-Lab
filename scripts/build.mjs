@@ -19,9 +19,10 @@ await rm(dist, {recursive:true, force:true});
 for (const version of versions) {
   await mkdir(join(dist, "runtime", "v" + version), {recursive:true});
 }
-for (const filename of ["index.html", "styles.css", "storage.js", "runtime-worker.js", "updates.js", "manifest.webmanifest", "icon.svg"]) {
+for (const filename of ["index.html", "styles.css", "storage.js", "catalog.js", "runtime-worker.js", "updates.js", "manifest.webmanifest", "icon.svg"]) {
   await copyFile(join(root, "web", filename), join(dist, filename));
 }
+await copyFile(join(root,"catalog","examples.json"),join(dist,"examples.json"));
 for (const version of versions) {
   await copyFile(join(root, "vendor", "nailseed-v" + version + ".js"),
     join(dist, "runtime", "v" + version, "nailseed.js"));
