@@ -77,6 +77,10 @@ identityLab true ;</code></pre>
           </label>
           <p id="runtime-note" class="runtime-note">Novità: i campi dei record possono essere inferiti strutturalmente.</p>
         </div>
+        <div class="catalog-entry">
+          <div><strong>Vuoi provare qualcosa?</strong><span>Programmi piccoli, controllati sulle release originali.</span></div>
+          <button id="catalog-open" class="secondary catalog-open" type="button">Esempi <span aria-hidden="true">▦</span></button>
+        </div>
         <div id="code-editor" class="code-editor" role="group" aria-label="Editor del codice Nail"></div>
         <div class="run-row">
           <button id="run-button" class="primary" type="button"><span aria-hidden="true">▶</span> Esegui</button>
@@ -135,6 +139,34 @@ identityLab true ;</code></pre>
     </section>
   </main>
 
+
+  <dialog id="catalog-dialog" class="catalog-dialog" aria-labelledby="catalog-title">
+    <div class="catalog-header">
+      <div>
+        <p class="eyebrow">COOKBOOK · NAIL</p>
+        <h2 id="catalog-title">Esplora gli esempi</h2>
+        <p>Ogni programma usa la sua release originale. Scegline uno per caricarlo nell'editor.</p>
+      </div>
+      <button id="catalog-close" class="catalog-close" type="button" aria-label="Chiudi gli esempi">✕</button>
+    </div>
+    <div class="catalog-filters">
+      <label for="catalog-search">Cerca un esempio
+        <input id="catalog-search" type="search" placeholder="Funzioni, record, errori…" autocomplete="off">
+      </label>
+      <div class="catalog-filter-row">
+        <label for="catalog-version">Versione
+          <select id="catalog-version" aria-label="Filtra per versione"><option value="all">Tutte le versioni</option></select>
+        </label>
+        <label for="catalog-category">Argomento
+          <select id="catalog-category" aria-label="Filtra per argomento"><option value="all">Tutti gli argomenti</option></select>
+        </label>
+      </div>
+      <p id="catalog-count" class="catalog-count" role="status">Caricamento del catalogo…</p>
+    </div>
+    <div id="catalog-list" class="catalog-list" aria-label="Elenco degli esempi"></div>
+    <p class="catalog-footer">Aprire un esempio sostituisce la bozza <strong>della sua versione</strong>, dopo conferma. Le altre versioni non cambiano.</p>
+  </dialog>
+
   <div id="update-banner" class="update-banner" hidden role="status">
     <span>Nuova versione di Nail Lab disponibile.</span>
     <button id="update-apply" class="primary small">Aggiorna</button>
@@ -148,6 +180,7 @@ identityLab true ;</code></pre>
   </nav>
   <script src="./storage.js"></script>
   <script src="./editor.js"></script>
+  <script src="./catalog.js"></script>
   <script src="./app.js"></script>
   <script src="./updates.js"></script>
 </body>
