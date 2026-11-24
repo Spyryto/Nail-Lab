@@ -77,6 +77,7 @@ class Main {
     el("stop-button").setAttribute("hidden", "");
     text("run-output", "Premi Esegui per provare Nail v" + version + ".");
     resultState("idle", "PRONTO");
+    runFeedback("idle", "Pronto per l’esecuzione");
     text("expand-output", "Apri Esplora per analizzare Nail v" + version + ".");
     text("types-output", "Apri Esplora per analizzare Nail v" + version + ".");
     loadDraft();
@@ -123,6 +124,18 @@ class Main {
   static function resultState(state:String, caption:String):Void {
     el("result-card").setAttribute("data-state", state);
     text("result-state", caption);
+  }
+  static function runFeedback(state:String, message:String, ?duration:Dynamic):Void {
+    el("run-feedback").setAttribute("data-state", state);
+    text("run-feedback-text", message);
+    var timer=el("run-feedback-time");
+    if (state=="success" && duration!=null) {
+      var ms:Float=duration;
+      text("run-feedback-time", Std.string(Math.round(ms*100)/100)+" ms · analisi + esecuzione");
+      timer.removeAttribute("hidden");
+    } else {
+      timer.setAttribute("hidden","");
+    }
   }
   static function on(id:String, callback:Void->Void):Void
     el(id).addEventListener("click", function(_) callback());
@@ -173,6 +186,8 @@ class Main {
           ? Json.stringify(msg.result, null, "  ")
           : Std.string(msg.error));
         resultState(msg.ok ? "success" : "error", msg.ok ? "COMPLETATO" : "ERRORE");
+        runFeedback(msg.ok ? "success" : "error",
+          msg.ok ? "Esecuzione riuscita" : Std.string(msg.error), msg.durationMs);
         showErrorJump(msg.ok ? null : msg.diagnostic);
       } else if (msg.kind == "inspect") {
         text("expand-output", msg.expandError != null
@@ -191,6 +206,7 @@ class Main {
     worker.onerror = function(_) {
       text("run-output", "Errore nel Worker Nail. Prova a riavviare.");
       resultState("error", "ERRORE");
+      runFeedback("error", "Errore nel runtime Nail");
       el("run-button").removeAttribute("disabled");
       text("run-button", "Esegui");
       el("stop-button").setAttribute("hidden", "");
@@ -211,6 +227,7 @@ class Main {
     el("stop-button").removeAttribute("hidden");
     text("run-output", "Elaborazione in corso…");
     resultState("running", "IN ESECUZIONE");
+    runFeedback("running", "Analisi ed esecuzione in corso…");
     worker.postMessage({id:serial, kind:"run", source:source});
   }
 
@@ -219,6 +236,7 @@ class Main {
     clearErrorJump();
     text("run-output", "Esecuzione interrotta.");
     resultState("idle", "INTERROTTO");
+    runFeedback("idle", "Esecuzione interrotta");
     text("run-button", "Esegui");
     el("run-button").removeAttribute("disabled");
     el("stop-button").setAttribute("hidden", "");
@@ -273,12 +291,6 @@ class Main {
     on("nav-editor", function() show("editor"));
     on("nav-inspect", function() show("inspect"));
     on("nav-history", function() show("history"));
-    on("read-try", function() {
-      // The historical reading lesson uses the original 0.54 runtime.
-      if (version != "0.54") switchVersion("0.54");
-      show("editor");
-      try NailEditor.focus() catch (_:Dynamic) {}
-    });
     on("run-button", run);
     on("stop-button", stop);
     on("error-jump", function() {
