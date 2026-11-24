@@ -5,7 +5,8 @@ const SHELL = [
   "./storage.js", "./editor.js", "./app.js", "./updates.js",
   "./runtime-worker.js", "./runtime-worker.js?version=0.54",
   "./runtime-worker.js?version=0.60", "./runtime/v0.54/nailseed.js",
-  "./runtime/v0.60/nailseed.js"
+  "./runtime/v0.60/nailseed.js",
+  "./runtime-worker.js?version=0.61", "./runtime/v0.61/nailseed.js"
 ];
 
 self.addEventListener("install", event => {

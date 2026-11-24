@@ -31,7 +31,7 @@ jobs:
           haxe-version: "4.3.7"
       - name: Install editor dependencies
         run: npm install --no-audit --no-fund
-      - name: Download pinned Nail 0.54 and 0.60 runtimes
+      - name: Download pinned Nail 0.54, 0.60 and 0.61 runtimes
         run: npm run fetch:runtime
       - name: Build mobile PWA
         run: npm run build
@@ -41,6 +41,13 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Test mobile browser navigation
         run: npm run test:browser
+      - name: Upload mobile design previews
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nail-lab-mobile-preview
+          path: test-results/nail-lab-*.png
+          if-no-files-found: ignore
       - name: Upload preview build
         uses: actions/upload-artifact@v4
         with:

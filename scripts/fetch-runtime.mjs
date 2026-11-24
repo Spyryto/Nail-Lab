@@ -4,7 +4,7 @@ import {join, resolve} from "node:path";
 import {spawnSync} from "node:child_process";
 
 const root = resolve(import.meta.dirname, "..");
-const versions = ["0.54", "0.60"];
+const versions = ["0.54", "0.60", "0.61"];
 
 
 function command(program, args) {

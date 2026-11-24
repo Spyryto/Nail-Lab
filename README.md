@@ -2,25 +2,46 @@
 
 **PWA mobile portrait** per studiare storia e architettura di [NailLang](https://github.com/Spyryto/NailLang).
 
-## Prima iterazione
+## Cosa fa oggi
 
 - Quattro sezioni a schermata singola: **Leggi**, **Scrivi**, **Esplora**, **Storia**.
 - Lezione sul vero Core AST a cinque costruttori.
 - Editor CodeMirror 6 e salvataggio locale automatico in IndexedDB, con una bozza distinta per ogni versione; il selettore conserva anche la scelta alla riapertura.
-- Selezione del compilatore/runtime reale **v0.54 oppure v0.60**, con bundle ufficiali scaricati dalle rispettive release GitHub; ogni versione gira in un Web Worker separato.
+- Selezione del compilatore/runtime reale **v0.54, v0.60 oppure v0.61**, con bundle ufficiali scaricati dalle rispettive release GitHub; ogni versione gira in un Web Worker separato.
 - Ispezione con le API autentiche `NailSeed.expand` (forma testuale del Core espanso) e `NailSeed.analyze` (simboli, diagnostica, riferimenti e tipi).
 - PWA installabile, cache offline e avviso di aggiornamento.
 - GitHub Actions: build Haxe, test del runtime Nail e deploy su Pages dopo merge in main.
 
-**Non ancora inclusi:** runtime di *tutte* le release (solo v0.54 e v0.60 sono verificate per il browser), AST ad albero interattivo, bytecode strutturato e VM step-by-step. Non presentiamo dati inventati come se fossero prodotti dal compilatore.
+**Non ancora inclusi:** runtime di *tutte* le release (v0.54, v0.60 e v0.61 sono verificate per il browser), AST ad albero interattivo, bytecode strutturato e VM step-by-step. Non presentiamo dati inventati come se fossero prodotti dal compilatore.
 
 ## Selettore delle versioni
 
-Nella sezione **Scrivi** scegli tra Nail **v0.54** e **v0.60**. La scelta cambia davvero il bundle ufficiale utilizzato per il parsing, la compilazione interna ed esecuzione nella VM JavaScript: **non** è un transpiler Nail → JavaScript/PHP e non è una simulazione del linguaggio. Lo stesso runtime fornisce anche le API di analisi per la schermata **Esplora**, quando disponibili.
+Nella sezione **Scrivi** scegli fra Nail **v0.54**, **v0.60** e **v0.61**. La scelta cambia davvero il bundle ufficiale utilizzato per il parsing, la compilazione interna ed esecuzione nella VM JavaScript: **non** è un transpiler Nail → JavaScript/PHP e non è una simulazione del linguaggio. Lo stesso runtime fornisce anche le API di analisi per la schermata **Esplora**, quando disponibili.
 
-Ogni versione mantiene la propria bozza sul dispositivo. Cambiando versione non si riscrive automaticamente la sintassi di un programma: codice v0.54 e v0.60 possono comportarsi diversamente. La lezione storica sui cinque costruttori usa v0.54 e apre quella versione quando premi **Apri nell'editor**.
+Ogni versione mantiene la propria bozza sul dispositivo. Cambiando versione non si riscrive automaticamente la sintassi di un programma: codice delle diverse versioni può comportarsi diversamente. La lezione storica sui cinque costruttori usa v0.54 e apre quella versione quando premi **Apri nell'editor**.
 
-Questa prima integrazione supporta solo le due distribuzioni browser **verificate**. Non carichiamo arbitrariamente un tag GitHub perché la presenza di una release non garantisce che esporti la stessa API. Il cache offline della PWA include entrambi i runtime; il download avviene durante la build, non durante ogni esecuzione.
+Questa prima integrazione supporta solo le tre distribuzioni browser **verificate**. Non carichiamo arbitrariamente un tag GitHub perché la presenza di una release non garantisce che esporti la stessa API. Il cache offline della PWA include tutti e tre i runtime; il download avviene durante la build, non durante ogni esecuzione.
+
+## Nuovo in 0.61
+
+L'editor usa **v0.61** come predefinita per le nuove installazioni. Le preferenze già salvate e le bozze delle versioni precedenti sono conservate. Il programma iniziale dimostra un'operazione nuova:
+
+```nail
+nail 0.61 ;
+type Person { name Text age Float } ;
+def getName data = data . name ;
+getName { name = " Ada " , age = 19.0 } ;
+getName ( Person " Mario " 46.0 ) ;
+```
+
+Il parametro non annotato è strutturale; se fosse annotato con `( data : Person )` si applicherebbe invece il vincolo nominale. L'esecuzione e la diagnostica usano **il runtime pubblicato da NailLang**, non codice JavaScript che simula i tipi.
+
+## Interfaccia
+
+- Restyling mobile con colori distintivi, superfici morbide e ombre leggere, **senza framework UI o dipendenze grafiche aggiuntive**.
+- Nella sezione **Scrivi**, **Amplia/Riduci** aumenta lo spazio del codice; il pannello Risultato distingue esecuzione, successo ed errore.
+- La schermata **Leggi** offre l'accesso diretto alla versione corrente, mentre la lezione sul Core AST continua ad aprire la sua versione storica 0.54.
+- CI: test sul vero runtime 0.61, differenza fra record nominali/strutturali e smoke test in Chromium mobile, con screenshot allegati alla build per revisione visiva.
 
 ## Sviluppo locale
 

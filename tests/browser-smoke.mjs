@@ -1,5 +1,5 @@
 import {createServer} from "node:http";
-import {readFile, stat} from "node:fs/promises";
+import {readFile, stat, mkdir} from "node:fs/promises";
 import {resolve, join, extname, sep} from "node:path";
 import {chromium} from "playwright";
 import assert from "node:assert/strict";
@@ -35,10 +35,12 @@ page.on("console",msg=>{if(msg.type()==="error") errors.push("console: "+msg.tex
 try {
   const response=await page.goto('http://127.0.0.1:'+port+'/',{waitUntil:"networkidle"});
   assert.equal(response.status(),200);
+  await mkdir("test-results",{recursive:true});
+  await page.screenshot({path:"test-results/nail-lab-home.png",fullPage:true});
   await page.getByRole("button",{name:"Scrivi"}).click();
   await page.locator("#panel-editor").waitFor({state:"visible",timeout:4000});
   await page.locator(".cm-editor").waitFor({state:"visible",timeout:4000});
-  assert.equal(await page.locator("#nail-version").inputValue(), "0.60");
+  assert.equal(await page.locator("#nail-version").inputValue(), "0.61");
   await page.locator("#nail-version").selectOption("0.54");
   await page.waitForFunction(() => window.NailEditor?.getValue().startsWith("nail 0.54 ;"),
     null, {timeout:12000});
@@ -117,6 +119,33 @@ try {
   assert.equal(await page.locator("#nail-version").inputValue(),"0.54");
   await page.waitForFunction(() => window.NailEditor?.getValue().includes("def wrong = true true"),
     null,{timeout:12000});
+  // v0.61 uses the actual new compiler/runtime, not a replacement JS parser.
+  await page.getByRole("button",{name:"Scrivi"}).click();
+  await page.locator("#panel-editor").waitFor({state:"visible",timeout:4000});
+  await page.locator("#nail-version").selectOption("0.61");
+  await page.waitForFunction(() => window.NailEditor?.getValue().startsWith("nail 0.61 ;"),
+    null,{timeout:12000});
+  assert.equal(await page.locator("#runtime-note").innerText().then(t => t.includes("strutturale")),true);
+  await page.getByRole("button",{name:"Amplia"}).click();
+  assert.equal(await page.locator("#panel-editor").getAttribute("data-expanded"),"true");
+  await page.getByRole("button",{name:"Riduci"}).click();
+  assert.equal(await page.locator("#panel-editor").getAttribute("data-expanded"),"false");
+  await page.getByRole("button",{name:"Esegui",exact:true}).click();
+  await page.waitForFunction(() => document.getElementById("run-output").textContent.includes("Ada") &&
+    document.getElementById("run-output").textContent.includes("Mario"),null,{timeout:12000});
+  assert.equal(await page.locator("#result-card").getAttribute("data-state"),"success");
+  await page.screenshot({path:"test-results/nail-lab-editor-061.png",fullPage:true});
+  await page.locator(".cm-content").fill(
+    'nail 0.61 ; type Person { name Text age Float } ; ' +
+    'def getName ( data : Person ) = data . name ; ' +
+    'getName { name = " Ada " , age = 19.0 } ;'
+  );
+  await page.getByRole("button",{name:"Esegui",exact:true}).click();
+  await page.waitForFunction(() => document.getElementById("run-output").textContent.includes("Tipo"),
+    null,{timeout:12000});
+  assert.equal(await page.locator("#result-card").getAttribute("data-state"),"error");
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2),true,
+    "Mobile layout should not scroll horizontally");
   assert.deepEqual(errors,[],"Browser errors: "+errors.join("\n"));
   console.log("PASS: Mobile navigation, CodeMirror, Nail execution, analysis and history");
 } catch(error) {
