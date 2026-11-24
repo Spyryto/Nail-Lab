@@ -9,7 +9,7 @@ function run(program, args) {
   if (result.error) throw result.error;
   if (result.status !== 0) throw new Error(program + " failed (" + result.status + ")");
 }
-const versions = ["0.54", "0.60"];
+const versions = ["0.54", "0.60", "0.61"];
 for (const version of versions) {
   try { await access(join(root, "vendor", "nailseed-v" + version + ".js")); }
   catch { throw new Error("Missing Nail v" + version + " runtime. Run npm run fetch:runtime first."); }
@@ -34,7 +34,7 @@ run(join(root, "node_modules", ".bin", "esbuild"), [
 
 const build = process.env.GITHUB_SHA ?? process.env.NAIL_LAB_BUILD ?? "local";
 const timestamp = new Date().toISOString();
-await writeFile(join(dist, "version.json"), JSON.stringify({build, timestamp, nail:"0.60", runtimes:versions}, null, 2) + "\n");
+await writeFile(join(dist, "version.json"), JSON.stringify({build, timestamp, nail:"0.61", runtimes:versions}, null, 2) + "\n");
 const serviceWorker = (await readFile(join(root,"web","sw.js"),"utf8")).replaceAll("__BUILD_ID__",build);
 await writeFile(join(dist,"sw.js"),serviceWorker);
 console.log("Built Nail Lab PWA at dist/ (Nail " + versions.join(", ") + ", build " + build + ")");
