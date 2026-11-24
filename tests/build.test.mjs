@@ -19,6 +19,9 @@ test("PWA shell and compilation artifacts are present", async () => {
   assert.match(html, /id="read-open-latest"/);
   assert.match(html, /id="editor-size"/);
   assert.match(html, /id="result-card"/);
+  assert.match(html, /id="run-feedback"/);
+  assert.doesNotMatch(html, /id="read-try"/);
+  assert.match(html, /Apri il laboratorio/);
   assert.match(html, /value="0.54"/);
   const manifest = JSON.parse(await readFile(new URL("../dist/manifest.webmanifest",import.meta.url)));
   assert.equal(manifest.orientation,"portrait");
@@ -39,6 +42,8 @@ test("the actual browser Worker loads Nail 0.54 and executes the lesson", async 
   assert.equal(typeof sandbox.NailSeed?.create,"function", "Browser-global NailSeed API must be available");
   sandbox.onmessage({data:{kind:"run",id:1,source}});
   assert.equal(messages[0]?.ok,true,JSON.stringify(messages[0]));
+  assert.equal(typeof messages[0].durationMs,"number");
+  assert.equal(messages[0].durationMs>=0,true);
   assert.match(JSON.stringify(messages[0].result),/true/);
   sandbox.onmessage({data:{kind:"inspect",id:2,source}});
   assert.equal(messages[1]?.ok,true,JSON.stringify(messages[1]));
@@ -109,6 +114,8 @@ test("Nail v0.61 loads the official runtime and distinguishes structural from no
   sandbox.onmessage({data:{kind:"run",id:103,source:nominal}});
   assert.equal(messages[2]?.ok,false,JSON.stringify(messages[2]));
   assert.match(messages[2].error,/Tipo/i);
+  assert.equal(typeof messages[2].durationMs,"number");
+  assert.equal(messages[2].durationMs>=0,true);
 });
 
 test("parse errors use Nail's verified source spans, not token counts", async () => {
