@@ -38,6 +38,10 @@ try {
   await page.getByRole("button",{name:"Scrivi"}).click();
   await page.locator("#panel-editor").waitFor({state:"visible",timeout:4000});
   await page.locator(".cm-editor").waitFor({state:"visible",timeout:4000});
+  assert.equal(await page.locator("#nail-version").inputValue(), "0.60");
+  await page.locator("#nail-version").selectOption("0.54");
+  await page.waitForFunction(() => window.NailEditor?.getValue().startsWith("nail 0.54 ;"),
+    null, {timeout:12000});
   await page.getByRole("button",{name:"Esegui",exact:true}).click();
   await page.waitForFunction(()=>document.getElementById("run-output").textContent.includes("true"),{timeout:12000});
   await page.getByRole("button",{name:"Esplora"}).click();
@@ -88,6 +92,22 @@ try {
   await page.locator("#panel-history").waitFor({state:"visible",timeout:4000});
   await page.getByRole("button",{name:"Leggi"}).click();
   await page.locator("#panel-read").waitFor({state:"visible",timeout:4000});
+  // Switching releases creates an isolated Worker and retains each draft.
+  await page.getByRole("button",{name:"Scrivi"}).click();
+  await page.locator("#nail-version").selectOption("0.60");
+  await page.waitForFunction(() => window.NailEditor?.getValue().startsWith("nail 0.60 ;"),
+    null,{timeout:12000});
+  await page.locator(".cm-content").fill("nail 0.60 ; def answer = 42 ; answer ;");
+  await page.getByRole("button",{name:"Esegui",exact:true}).click();
+  await page.waitForFunction(() => document.getElementById("run-output").textContent.includes("I:42/1"),
+    null,{timeout:12000});
+  await page.locator("#nail-version").selectOption("0.54");
+  await page.waitForFunction(() => window.NailEditor?.getValue().includes("def wrong = true true"),
+    null,{timeout:12000});
+  await page.reload({waitUntil:"networkidle"});
+  assert.equal(await page.locator("#nail-version").inputValue(),"0.54");
+  await page.waitForFunction(() => window.NailEditor?.getValue().includes("def wrong = true true"),
+    null,{timeout:12000});
   assert.deepEqual(errors,[],"Browser errors: "+errors.join("\n"));
   console.log("PASS: Mobile navigation, CodeMirror, Nail execution, analysis and history");
 } catch(error) {

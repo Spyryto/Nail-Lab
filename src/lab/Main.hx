@@ -10,9 +10,68 @@ import lab.Bridges.NailStorage;
 
 /** Single-column portrait PWA: the UI does not implement a Nail parser or VM. */
 class Main {
-  static inline var STORAGE_KEY = "v0.54:core-ast:source";
-  static inline var DEFAULT_SOURCE = "nail 0.54 ;\ndef identityLab x = x ;\nidentityLab true ;";
-  static var source:String = DEFAULT_SOURCE;
+  static inline var VERSION_KEY = "nail-lab:selected-version";
+  static var version:String = "0.60";
+  static var source:String = defaultSource("0.60");
+  static var ignoreEditorChanges:Bool = false;
+  static var draftEpoch:Int = 0;
+  static var loadingDraft:Bool = false;
+
+  static function supported(value:String):Bool return value == "0.54" || value == "0.60";
+  static function storageKey(value:String):String return "v" + value + ":core-ast:source";
+  static function defaultSource(value:String):String
+    return "nail " + value + " ;\ndef identityLab x = x ;\nidentityLab true ;";
+
+  static function updateVersionUi():Void {
+    var select:js.html.SelectElement = cast el("nail-version");
+    select.value = version;
+    text("active-version", "Nail v" + version);
+    text("editor-version-label", "LABORATORIO · NAIL v" + version);
+    text("inspect-version-label", "STRUMENTI · NAIL v" + version);
+  }
+
+  static function loadDraft():Void {
+    var selected = version;
+    var epoch = ++draftEpoch;
+    loadingDraft = true;
+    text("code-status", "Caricamento bozza v" + selected + "…");
+    NailStorage.load(storageKey(selected)).then(function(saved) {
+      if (epoch != draftEpoch || selected != version) return null;
+      source = saved != null && saved.length > 0 ? saved : defaultSource(selected);
+      ignoreEditorChanges = true;
+      try NailEditor.setValue(source) catch (_:Dynamic) {}
+      ignoreEditorChanges = false;
+      loadingDraft = false;
+      text("code-status", "Bozza v" + selected + " sul dispositivo");
+      return null;
+    }).catchError(function(_) {
+      if (epoch == draftEpoch && selected == version) {
+        loadingDraft = false;
+        text("code-status", "Memoria locale non disponibile");
+      }
+      return null;
+    });
+  }
+
+  static function switchVersion(next:String):Void {
+    if (!supported(next) || next == version) return;
+    if (saveTimer != null) {
+      Browser.window.clearTimeout(saveTimer);
+      saveTimer = null;
+    }
+    // Save the old draft under its version before switching Worker.
+    NailStorage.save(storageKey(version), source);
+    version = next;
+    try Browser.window.localStorage.setItem(VERSION_KEY, version)
+    catch (_:Dynamic) {}
+    updateVersionUi();
+    newWorker();
+    clearErrorJump();
+    text("run-output", "Premi Esegui per provare Nail v" + version + ".");
+    text("expand-output", "Apri Esplora per analizzare Nail v" + version + ".");
+    text("types-output", "Apri Esplora per analizzare Nail v" + version + ".");
+    loadDraft();
+  }
   static var section:String = "read";
   static var worker:Worker;
   static var saveTimer:Null<Int> = null;
@@ -67,6 +126,7 @@ class Main {
   }
 
   static function changed(value:String):Void {
+    if (ignoreEditorChanges) return;
     source = value;
     // CodeMirror clears the decoration in its own update transaction.
     clearErrorJump(false);
@@ -74,7 +134,7 @@ class Main {
     if (saveTimer != null) Browser.window.clearTimeout(saveTimer);
     saveTimer = Browser.window.setTimeout(function() {
       saveTimer = null;
-      NailStorage.save(STORAGE_KEY, source).then(function(ok) {
+      NailStorage.save(storageKey(version), source).then(function(ok) {
         text("code-status", ok ? "Salvato sul dispositivo" : "Salvataggio non disponibile");
         return null;
       }).catchError(function(_) {
@@ -86,9 +146,10 @@ class Main {
 
   static function newWorker():Void {
     if (worker != null) worker.terminate();
-    worker = new Worker("./runtime-worker.js");
+    worker = new Worker("./runtime-worker.js?version=" + version);
     worker.onmessage = function(event:MessageEvent) {
       var msg:Dynamic = event.data;
+      if (msg.version != version) return;
       // An older Worker response must not annotate a newly edited source.
       if (msg.source != null && msg.source != source) return;
       if (msg.kind == "run") {
@@ -123,6 +184,7 @@ class Main {
   }
 
   static function run():Void {
+    if (loadingDraft) return;
     clearErrorJump();
     if (source.length > 16000) {
       text("run-output", "Esempio troppo lungo (limite 16.000 caratteri).");
@@ -146,6 +208,7 @@ class Main {
   }
 
   static function inspect():Void {
+    if (loadingDraft) return;
     if (source.length > 16000) {
       text("expand-output", "Sorgente troppo lungo.");
       text("types-output", "Sorgente troppo lungo.");
@@ -166,13 +229,25 @@ class Main {
   }
 
   static function main():Void {
+    try {
+      var stored = Browser.window.localStorage.getItem(VERSION_KEY);
+      if (stored != null && supported(stored)) version = stored;
+    } catch (_:Dynamic) {}
+    source = defaultSource(version);
+    updateVersionUi();
     // Navigation is independent of the editor: an editor failure cannot disable buttons.
     newWorker();
+    el("nail-version").addEventListener("change", function(_) {
+      var select:js.html.SelectElement = cast el("nail-version");
+      switchVersion(select.value);
+    });
     on("nav-read", function() show("read"));
     on("nav-editor", function() show("editor"));
     on("nav-inspect", function() show("inspect"));
     on("nav-history", function() show("history"));
     on("read-try", function() {
+      // The historical reading lesson uses the original 0.54 runtime.
+      if (version != "0.54") switchVersion("0.54");
       show("editor");
       try NailEditor.focus() catch (_:Dynamic) {}
     });
@@ -199,16 +274,6 @@ class Main {
       text("code-status", "Editor non disponibile: " + Std.string(error));
       return;
     }
-    NailStorage.load(STORAGE_KEY).then(function(saved) {
-      if (saved != null && saved.length > 0) {
-        source = saved;
-        NailEditor.setValue(saved);
-      }
-      text("code-status", "Salvato sul dispositivo");
-      return null;
-    }).catchError(function(_) {
-      text("code-status", "Memoria locale non disponibile");
-      return null;
-    });
+    loadDraft();
   }
 }

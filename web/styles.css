@@ -1,7 +1,7 @@
 :root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#eff5fd;background:#0d1726;font-size:16px;color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;min-width:280px;padding:0 0 calc(94px + env(safe-area-inset-bottom));line-height:1.55}
-button,input{font:inherit}button{touch-action:manipulation}button:focus-visible,a:focus-visible{outline:3px solid #a8ddff;outline-offset:3px}
+button,input,select{font:inherit}button{touch-action:manipulation}button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #a8ddff;outline-offset:3px}
 a{color:#a8d5ff;text-underline-offset:3px}
 .topbar{height:58px;border-bottom:1px solid #26374c;padding:0 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#0d1726;z-index:5}
 .wordmark{font-weight:750;letter-spacing:-.025em;font-size:18px}.brand-symbol{display:inline-grid;place-items:center;width:28px;height:28px;border:1px solid #7db3fa;border-radius:8px;color:#c5e3ff;margin-right:5px}
@@ -34,3 +34,6 @@ button:disabled{opacity:.6}.small{min-height:34px!important;padding:6px 12px!imp
 @media(prefers-reduced-motion:no-preference){.primary:active,.secondary:active{transform:scale(.985)}}
 
 #error-jump{margin-top:10px;width:100%;}
+
+.version-picker{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 0;font-weight:650;color:#cbd9e8}
+.version-picker select{min-height:44px;min-width:132px;border:1px solid #48739e;border-radius:12px;background:#1b3453;color:#eff5fd;padding:8px 12px}

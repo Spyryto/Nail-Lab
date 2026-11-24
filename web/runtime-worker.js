@@ -1,13 +1,23 @@
-/* Historical Nail 0.54, not a JS reimplementation of the language. */
+/* Official, versioned Nail runtimes. Each Worker loads exactly one version. */
+const runtimePaths = Object.freeze({
+  "0.54": "./runtime/v0.54/nailseed.js",
+  "0.60": "./runtime/v0.60/nailseed.js"
+});
+const version = self.location?.search
+  ? new URLSearchParams(self.location.search).get("version") || "0.54"
+  : "0.54"; // Existing test harness and old client default.
 let loadError = null;
 try {
-  importScripts("./runtime/v0.54/nailseed.js");
-  if (!self.NailSeed) throw new Error("NailSeed API not exported by runtime");
+  if (!Object.prototype.hasOwnProperty.call(runtimePaths, version))
+    throw new Error("Versione di Nail non disponibile: " + version);
+  importScripts(runtimePaths[version]);
+  if (!self.NailSeed || typeof self.NailSeed.create !== "function")
+    throw new Error("NailSeed API not exported by runtime v" + version);
 } catch (error) {
   loadError = String(error);
 }
 
-// Nail 0.54's static analyzer owns the only trustworthy source positions.
+// The selected Nail runtime owns the only trustworthy source positions.
 // Never infer line/column by splitting or counting textual tokens from an error.
 function sourceLocation(diagnostic) {
   const span = diagnostic?.span;
@@ -60,7 +70,7 @@ self.onmessage = function(event) {
       const staticDiagnostic = firstDiagnostic(analysis);
       if (staticDiagnostic?.phase === "type") {
         self.postMessage({
-          id, kind, source, ok: false,
+          id, kind, version, source, ok: false,
           error: formatDiagnostic(staticDiagnostic),
           diagnostic: sourceLocation(staticDiagnostic) ? staticDiagnostic : null
         });
@@ -70,13 +80,13 @@ self.onmessage = function(event) {
         const vm = self.NailSeed.create(100000);
         vm.loadStdlib();
         const result = vm.runPlain(source);
-        self.postMessage({id, kind, source, ok: true, result});
+        self.postMessage({id, kind, version, source, ok: true, result});
       } catch (error) {
         const original = String(error);
         const diagnostic = staticDiagnostic || firstDiagnostic(analyzeSafely(source));
         const matched = matchesExecutionFailure(diagnostic, original);
         self.postMessage({
-          id, kind, source, ok: false,
+          id, kind, version, source, ok: false,
           error: matched ? formatDiagnostic(diagnostic) : "Errore: " + original,
           diagnostic: matched && sourceLocation(diagnostic) ? diagnostic : null
         });
@@ -93,12 +103,12 @@ self.onmessage = function(event) {
         diagnostic?.phase === "parse" && /\bat token \d+\b/.test(expandError)
           ? formatDiagnostic(diagnostic) : null;
       self.postMessage({
-        id, kind, source, ok: true, analysis, expanded, analysisError, expandError,
+        id, kind, version, source, ok: true, analysis, expanded, analysisError, expandError,
         diagnostic: diagnostic && sourceLocation(diagnostic) ? diagnostic : null,
         diagnosticText, expandDiagnosticText
       });
     }
   } catch (error) {
-    self.postMessage({id, kind, source, ok: false, error: "Errore: " + String(error)});
+    self.postMessage({id, kind, version, source, ok: false, error: "Errore: " + String(error)});
   }
 };
