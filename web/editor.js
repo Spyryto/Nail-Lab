@@ -1,5 +1,6 @@
 import {basicSetup, EditorView} from "codemirror";
-import {StreamLanguage} from "@codemirror/language";
+import {StreamLanguage, HighlightStyle, syntaxHighlighting} from "@codemirror/language";
+import {tags} from "@lezer/highlight";
 import {StateEffect, StateField} from "@codemirror/state";
 import {Decoration} from "@codemirror/view";
 
@@ -10,11 +11,48 @@ const nail = StreamLanguage.define({
     if (stream.match(/"(?:[^"\\]|\\.)*"/)) return "string";
     if (stream.match(/\b(?:def|type|match|with|if|then|else|import|from|use|export|nail)\b/)) return "keyword";
     if (stream.match(/\b(?:true|false|[0-9]+(?:\.[0-9]+)?)\b/)) return "number";
+    if (stream.match(/[A-Z][\w]*/)) return "type";
     if (stream.match(/[A-Za-z_][\w]*/)) return "variable";
     stream.next();
     return null;
   }
 });
+// One coherent, high-contrast and low-saturation palette for CodeMirror.
+const nailStyle = HighlightStyle.define([
+  {tag:tags.keyword, color:"#f5b3c6", fontWeight:"700"},
+  {tag:tags.typeName, color:"#b3dcf8", fontWeight:"700"},
+  {tag:tags.string, color:"#b4e5d0"},
+  {tag:tags.number, color:"#f3c995"},
+  {tag:tags.bool, color:"#f3c995"},
+  {tag:tags.comment, color:"#a7bbce", fontStyle:"italic"},
+  {tag:tags.variableName, color:"#f2f3fa"}
+]);
+
+// Presentation-only syntax colour for text outside CodeMirror.
+// Tokens are always appended as DOM text nodes; no HTML is generated from Nail.
+const tokenRx = /#[^\n]*|"(?:[^"\\]|\\.)*"|\b(?:def|type|match|with|if|then|else|import|from|use|export|nail)\b|\b(?:true|false|\d+(?:\.\d+)?)\b|\b[A-Z][A-Za-z0-9_]*\b/g;
+function highlightOutsideEditor(element) {
+  if (!element) return;
+  const raw = element.textContent;
+  const fragment = document.createDocumentFragment();
+  let index = 0;
+  for (const match of raw.matchAll(tokenRx)) {
+    if (match.index > index) fragment.appendChild(document.createTextNode(raw.slice(index,match.index)));
+    const value = match[0];
+    const type = value[0] === "#" ? "comment"
+      : value[0] === '"' ? "string"
+      : /^(?:\d|true$|false$)/.test(value) ? "number"
+      : /^[A-Z]/.test(value) ? "type" : "keyword";
+    const span = document.createElement("span");
+    span.className = "nail-token-" + type;
+    span.textContent = value;
+    fragment.appendChild(span);
+    index = match.index + value.length;
+  }
+  fragment.appendChild(document.createTextNode(raw.slice(index)));
+  element.replaceChildren(fragment);
+}
+
 // Diagnostics are original-source ranges, never offsets guessed from messages.
 const setDiagnostic = StateEffect.define();
 const diagnostics = StateField.define({
@@ -73,6 +111,7 @@ window.NailEditor = {
       extensions: [
         basicSetup,
         nail,
+        syntaxHighlighting(nailStyle),
         diagnostics,
         EditorView.lineWrapping,
         theme,
@@ -82,6 +121,12 @@ window.NailEditor = {
       ],
       parent: document.getElementById(elementId)
     });
+  },
+  highlightExamples() {
+    document.querySelectorAll("pre.example code, code[data-nail-highlight]").forEach(highlightOutsideEditor);
+  },
+  highlightBlock(id) {
+    highlightOutsideEditor(document.getElementById(id));
   },
   getValue() { return editor.state.doc.toString(); },
   setValue(value) {

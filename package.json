@@ -16,7 +16,8 @@
     "codemirror": "6.0.2",
     "esbuild": "0.25.11",
     "playwright": "1.56.1",
-    "@codemirror/view": "^6.30.0"
+    "@codemirror/view": "^6.30.0",
+    "@lezer/highlight": "^1.2.1"
   },
   "overrides": {
     "@codemirror/state": "6.5.2"
