@@ -6,7 +6,7 @@ import vm from "node:vm";
 
 const source = "nail 0.54 ;\ndef identityLab x = x ;\nidentityLab true ;";
 test("PWA shell and compilation artifacts are present", async () => {
-  for (const path of ["index.html", "styles.css", "app.js", "editor.js", "runtime-worker.js", "sw.js", "version.json", "manifest.webmanifest", "runtime/v0.54/nailseed.js", "runtime/v0.60/nailseed.js"]) {
+  for (const path of ["index.html", "styles.css", "app.js", "editor.js", "runtime-worker.js", "sw.js", "version.json", "manifest.webmanifest", "runtime/v0.54/nailseed.js", "runtime/v0.60/nailseed.js", "runtime/v0.61/nailseed.js"]) {
     assert.ok((await stat(new URL("../dist/" + path, import.meta.url))).size > 0, path);
   }
   const html = await readFile(new URL("../dist/index.html",import.meta.url),"utf8");
@@ -15,6 +15,10 @@ test("PWA shell and compilation artifacts are present", async () => {
   assert.match(html, /nav-history/);
   assert.match(html, /id="nail-version"/);
   assert.match(html, /value="0.60"/);
+  assert.match(html, /value="0.61" selected/);
+  assert.match(html, /id="read-open-latest"/);
+  assert.match(html, /id="editor-size"/);
+  assert.match(html, /id="result-card"/);
   assert.match(html, /value="0.54"/);
   const manifest = JSON.parse(await readFile(new URL("../dist/manifest.webmanifest",import.meta.url)));
   assert.equal(manifest.orientation,"portrait");
@@ -72,6 +76,39 @@ test("Nail v0.60 loads its own official runtime and executes the v0.60 dialect",
   sandbox.onmessage({data:{kind:"inspect",id:101,source}});
   assert.equal(messages[1]?.version,"0.60");
   assert.equal(messages[1]?.analysis?.ok,true,JSON.stringify(messages[1]));
+});
+
+test("Nail v0.61 loads the official runtime and distinguishes structural from nominal access", async () => {
+  const runtime = await readFile(new URL("../dist/runtime/v0.61/nailseed.js", import.meta.url),"utf8");
+  const worker = await readFile(new URL("../dist/runtime-worker.js",import.meta.url),"utf8");
+  const messages = [];
+  const sandbox = {console, URLSearchParams, location:{search:"?version=0.61"}};
+  sandbox.self = sandbox;
+  sandbox.postMessage = result => messages.push(result);
+  const context = vm.createContext(sandbox);
+  sandbox.importScripts = path => {
+    assert.equal(path,"./runtime/v0.61/nailseed.js");
+    vm.runInContext(runtime,context,{timeout:15000,filename:"nailseed-v0.61.js"});
+  };
+  vm.runInContext(worker,context,{timeout:10000,filename:"runtime-worker.js"});
+  const structural = 'nail 0.61 ; type Person { name Text age Float } ; ' +
+    'def getName data = data . name ; ' +
+    'getName { name = " Ada " , age = 19.0 } ; ' +
+    'getName ( Person " Mario " 46.0 ) ;';
+  sandbox.onmessage({data:{kind:"run",id:101,source:structural}});
+  assert.equal(messages[0]?.version,"0.61");
+  assert.equal(messages[0]?.ok,true,JSON.stringify(messages[0]));
+  assert.deepEqual(Array.from(messages[0].result),["Ada","Mario"]);
+  sandbox.onmessage({data:{kind:"inspect",id:102,source:structural}});
+  assert.equal(messages[1]?.analysis?.ok,true,JSON.stringify(messages[1]));
+  assert.equal(messages[1]?.version,"0.61");
+
+  const nominal = 'nail 0.61 ; type Person { name Text age Float } ; ' +
+    'def getName ( data : Person ) = data . name ; ' +
+    'getName { name = " Ada " , age = 19.0 } ;';
+  sandbox.onmessage({data:{kind:"run",id:103,source:nominal}});
+  assert.equal(messages[2]?.ok,false,JSON.stringify(messages[2]));
+  assert.match(messages[2].error,/Tipo/i);
 });
 
 test("parse errors use Nail's verified source spans, not token counts", async () => {
