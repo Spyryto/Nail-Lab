@@ -44,24 +44,24 @@ const diagnostics = StateField.define({
   provide: field => EditorView.decorations.from(field)
 });
 const theme = EditorView.theme({
-  "&": { height: "100%", backgroundColor: "#101b2c", color: "#edf3fa" },
+  "&": { height: "100%", backgroundColor: "#15182f", color: "#faf2ff" },
   ".cm-scroller": { fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: "15px", lineHeight: "1.65" },
-  ".cm-gutters": { backgroundColor: "#101b2c", color: "#8194ac", border: "none" },
-  ".cm-content": { caretColor: "#a9d4ff", padding: "14px 0" },
-  ".cm-activeLine": { backgroundColor: "#1b2c43" },
-  ".cm-selectionBackground": { backgroundColor: "#365b85 !important" },
+  ".cm-gutters": { backgroundColor: "#15182f", color: "#9692bb", border: "none" },
+  ".cm-content": { caretColor: "#d7fa78", padding: "14px 0" },
+  ".cm-activeLine": { backgroundColor: "#2b2850" },
+  ".cm-selectionBackground": { backgroundColor: "#514f8b !important" },
   ".cm-nail-diagnostic-token": {
-    backgroundColor: "rgba(230,75,97,.22)",
-    textDecoration: "underline wavy #ff879c",
+    backgroundColor: "rgba(255,135,168,.21)",
+    textDecoration: "underline wavy #ff9ab8",
     textUnderlineOffset: "3px"
   },
   ".cm-nail-diagnostic-form": {
-    backgroundColor: "rgba(239,172,66,.17)",
-    textDecoration: "underline dotted #e6a74d",
+    backgroundColor: "rgba(255,197,104,.16)",
+    textDecoration: "underline dotted #ffd785",
     textUnderlineOffset: "3px"
   },
   ".cm-nail-diagnostic-line": {
-    backgroundColor: "rgba(230,75,97,.18)"
+    backgroundColor: "rgba(255,135,168,.19)"
   }
 }, {dark: true});
 
