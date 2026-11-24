@@ -94,7 +94,16 @@ try {
   await page.locator("#panel-read").waitFor({state:"visible",timeout:4000});
   // Switching releases creates an isolated Worker and retains each draft.
   await page.getByRole("button",{name:"Scrivi"}).click();
+  // A version switch must reset controls even when the previous run was busy.
+  await page.evaluate(() => {
+    const run = document.getElementById("run-button");
+    run.disabled = true;
+    run.textContent = "Esecuzione…";
+    document.getElementById("stop-button").hidden = false;
+  });
   await page.locator("#nail-version").selectOption("0.60");
+  assert.equal(await page.locator("#run-button").isEnabled(),true);
+  assert.equal(await page.locator("#stop-button").isHidden(),true);
   await page.waitForFunction(() => window.NailEditor?.getValue().startsWith("nail 0.60 ;"),
     null,{timeout:12000});
   await page.locator(".cm-content").fill("nail 0.60 ; def answer = 42 ; answer ;");
