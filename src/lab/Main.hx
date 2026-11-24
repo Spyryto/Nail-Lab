@@ -65,8 +65,11 @@ class Main {
     try Browser.window.localStorage.setItem(VERSION_KEY, version)
     catch (_:Dynamic) {}
     updateVersionUi();
-    newWorker();
+    newWorker(); // Also cancels any previous version's in-flight execution.
     clearErrorJump();
+    text("run-button", "Esegui");
+    el("run-button").removeAttribute("disabled");
+    el("stop-button").setAttribute("hidden", "");
     text("run-output", "Premi Esegui per provare Nail v" + version + ".");
     text("expand-output", "Apri Esplora per analizzare Nail v" + version + ".");
     text("types-output", "Apri Esplora per analizzare Nail v" + version + ".");
