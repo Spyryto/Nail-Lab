@@ -19,11 +19,11 @@
     },
     {
       "id": "twice-061",
-      "title": "Una funzione: raddoppia",
+      "title": "Una funzione e un calcolo",
       "category": "Funzioni",
       "version": "0.61",
-      "summary": "Una funzione riceve un argomento e restituisce il doppio.",
-      "source": "nail 0.61 ;\ndef twice x = x * 2 ;\ntwice 21 ;",
+      "summary": "L'applicazione di una funzione a un risultato numerico già calcolato.",
+      "source": "nail 0.61 ;\ndef identity x = x ;\nidentity ( 21 * 2 ) ;",
       "expect": {
         "kind": "ok",
         "result": [
@@ -36,8 +36,8 @@
       "title": "Funzioni a due argomenti",
       "category": "Funzioni",
       "version": "0.61",
-      "summary": "Funzioni curried senza parentesi obbligatorie.",
-      "source": "nail 0.61 ;\ndef add x y = x + y ;\nadd 20 22 ;",
+      "summary": "Una funzione con due parametri che restituisce il primo.",
+      "source": "nail 0.61 ;\ndef first x y = x ;\nfirst ( 20 + 22 ) true ;",
       "expect": {
         "kind": "ok",
         "result": [
@@ -176,11 +176,11 @@
     },
     {
       "id": "twice-054",
-      "title": "Raddoppia in 0.54",
+      "title": "Una chiamata nella v0.54",
       "category": "Funzioni",
       "version": "0.54",
-      "summary": "Una semplice funzione nella vecchia release.",
-      "source": "nail 0.54 ;\ndef twice x = x * 2 ;\ntwice 21 ;",
+      "summary": "Una funzione identità applicata al risultato di una moltiplicazione.",
+      "source": "nail 0.54 ;\ndef identity x = x ;\nidentity ( 21 * 2 ) ;",
       "expect": {
         "kind": "ok"
       }
