@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0d1726">
+  <meta name="theme-color" content="#17152e">
   <meta name="description" content="Libro interattivo e laboratorio mobile per NailLang">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -12,15 +12,30 @@
 </head>
 <body>
   <header class="topbar">
-    <span class="wordmark"><span class="brand-symbol">N</span> Nail Lab</span>
-    <span id="active-version" class="version" aria-label="Versione Nail attiva">Nail v0.60</span>
+    <span class="wordmark"><span class="brand-symbol" aria-hidden="true">N<span class="brand-spark">✳</span></span><span>Nail<span class="brand-tail">Lab</span></span></span>
+    <span id="active-version" class="version" aria-label="Versione Nail attiva">Nail v0.61</span>
   </header>
 
   <main id="content">
     <section id="panel-read" class="panel" aria-labelledby="read-title">
-      <p class="eyebrow">LEZIONE 01 · ARCHITETTURA</p>
-      <h1 id="read-title">Cinque forme per un linguaggio</h1>
-      <p class="lede">Nail riduce le espressioni a cinque costruttori. Non è una semplificazione didattica: è il suo vero <strong>Core AST</strong>.</p>
+      <div class="hero">
+        <div class="hero-art" aria-hidden="true">
+          <span class="orbit orbit-one"></span><span class="orbit orbit-two"></span>
+          <span class="hero-glyph">N</span><span class="hero-star">✳</span>
+          <span class="hero-chip">5 FORME · ∞ IDEE</span>
+        </div>
+        <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> IL LINGUAGGIO, DAL VIVO</p>
+        <h1 id="read-title">Impara Nail.<span class="headline-accent">Sperimenta tutto.</span></h1>
+        <p class="lede">Un laboratorio tascabile per esplorare il linguaggio, scrivere codice e vedere cosa fa davvero il compilatore.</p>
+        <button id="read-open-latest" class="primary hero-cta" type="button">Prova Nail 0.61 <span aria-hidden="true">↗</span></button>
+        <p class="hero-note">Vero runtime, zero simulazioni. Anche offline.</p>
+      </div>
+      <div class="section-intro">
+        <span class="lesson-tag">LEZIONE 01</span>
+        <div><p class="eyebrow">ARCHITETTURA · NAIL 0.54</p>
+        <h2>Cinque forme per un linguaggio</h2></div>
+      </div>
+      <p class="muted">Nail riduce le espressioni a cinque costruttori. Non è una semplificazione didattica: è il suo vero <strong>Core AST</strong>.</p>
       <div class="explain">
         <h2>I costruttori</h2>
         <dl>
@@ -36,30 +51,47 @@
       <pre class="example"><code>nail 0.54 ;
 def identityLab x = x ;
 identityLab true ;</code></pre>
-      <button id="read-try" class="primary">Apri nell'editor <span aria-hidden="true">→</span></button>
+      <button id="read-try" class="secondary" type="button">Prova la lezione con Nail 0.54 <span aria-hidden="true">↗</span></button>
       <p class="footnote">Fonte: <a href="https://github.com/Spyryto/NailLang/blob/v0.54/src/nail/Ast.hx" target="_blank" rel="noopener">Ast.hx della versione 0.54</a>. Le lezioni storiche saranno aggiunte in successive iterazioni.</p>
     </section>
 
-    <section id="panel-editor" class="panel" aria-labelledby="editor-title" hidden>
-      <p id="editor-version-label" class="eyebrow">LABORATORIO · NAIL v0.60</p>
-      <h1 id="editor-title">Scrivi ed esegui</h1>
-      <p class="muted">Runtime reale di Nail, isolato in un Web Worker. Ogni versione conserva la propria bozza sul dispositivo.</p>
-      <label class="version-picker" for="nail-version">Versione di Nail
-        <select id="nail-version" aria-label="Versione del compilatore Nail">
-          <option value="0.60" selected>v0.60</option>
-          <option value="0.54">v0.54</option>
-        </select>
-      </label>
-      <p class="hint">Il cambio versione usa il runtime ufficiale corrispondente. La sintassi e le API disponibili possono variare.</p>
-      <div id="code-editor" class="code-editor" role="group" aria-label="Editor del codice Nail"></div>
-      <div class="run-row">
-        <button id="run-button" class="primary">Esegui</button>
-        <button id="stop-button" class="secondary" hidden>Interrompi</button>
+    <section id="panel-editor" class="panel panel-editor" aria-labelledby="editor-title" hidden>
+      <div class="editor-heading">
+        <p id="editor-version-label" class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> LABORATORIO · NAIL v0.61</p>
+        <h1 id="editor-title">Scrivi. <span class="headline-accent">Prova.</span> Scopri.</h1>
+        <p class="muted">Un vero runtime Nail in Web Worker. Ogni versione mantiene la sua bozza sul dispositivo.</p>
       </div>
-      <p id="code-status" class="status" aria-live="polite">Caricamento del progetto…</p>
-      <h2>Risultato</h2>
-      <pre id="run-output" class="output" aria-live="polite">Premi Esegui.</pre>
-      <button id="error-jump" class="secondary" hidden type="button">Vai all'errore</button>
+      <div class="workspace">
+        <div class="workspace-bar">
+          <span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="filename">main.nail</span>
+          <button id="editor-size" class="editor-size" type="button" aria-label="Amplia lo spazio per il codice">Amplia</button>
+        </div>
+        <div class="workspace-config">
+          <label class="version-picker" for="nail-version">Compilatore
+            <select id="nail-version" aria-label="Versione del compilatore Nail">
+              <option value="0.61" selected>v0.61 · ultima</option>
+              <option value="0.60">v0.60</option>
+              <option value="0.54">v0.54</option>
+            </select>
+          </label>
+          <p id="runtime-note" class="runtime-note">Novità: i campi dei record possono essere inferiti strutturalmente.</p>
+        </div>
+        <div id="code-editor" class="code-editor" role="group" aria-label="Editor del codice Nail"></div>
+        <div class="run-row">
+          <button id="run-button" class="primary" type="button"><span aria-hidden="true">▶</span> Esegui</button>
+          <button id="stop-button" class="secondary" type="button" hidden>Interrompi</button>
+        </div>
+        <p id="code-status" class="status" aria-live="polite">Caricamento della bozza…</p>
+      </div>
+      <div id="result-card" class="result-card" data-state="idle">
+        <div class="result-heading">
+          <h2>Risultato <span aria-hidden="true">↘</span></h2>
+          <span id="result-state" class="result-state">PRONTO</span>
+        </div>
+        <pre id="run-output" class="output" aria-live="polite">Premi Esegui.</pre>
+        <button id="error-jump" class="secondary" hidden type="button">Vai all'errore</button>
+      </div>
     </section>
 
     <section id="panel-inspect" class="panel" aria-labelledby="inspect-title" hidden>
@@ -84,7 +116,7 @@ identityLab true ;</code></pre>
     </section>
 
     <section id="panel-history" class="panel" aria-labelledby="history-title" hidden>
-      <p class="eyebrow">CRONOLOGIA · PRIMI TRAGUARDI</p>
+      <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> CRONOLOGIA · PRIMI TRAGUARDI</p>
       <h1 id="history-title">Come nasce Nail</h1>
       <p class="muted">Il repository NailLang conserva una storia pubblica ricostruita per versioni. Non è la cronologia Git privata originale.</p>
       <ol class="timeline">
@@ -93,8 +125,9 @@ identityLab true ;</code></pre>
         <li><span class="tag">v0.50</span><strong>Analisi per editor</strong><p>Nasce l'API strutturata per simboli, riferimenti e diagnostica.</p><a href="https://github.com/Spyryto/NailLang/blob/v0.50/docs/ANALYSIS.md" target="_blank" rel="noopener">Leggi la documentazione</a></li>
         <li><span class="tag">v0.54</span><strong>Moduli compilati</strong><p>Runtime disponibile nel Lab.</p><a href="https://github.com/Spyryto/NailLang/releases/tag/v0.54" target="_blank" rel="noopener">Vedi gli artefatti</a></li>
         <li><span class="tag">v0.60</span><strong>CoreIR e consolidamento</strong><p>Versione selezionabile nel Lab.</p><a href="https://github.com/Spyryto/NailLang/releases/tag/v0.60" target="_blank" rel="noopener">Vedi gli artefatti</a></li>
+        <li><span class="tag">v0.61</span><strong>Record più liberi</strong><p>Inferenza strutturale automatica, tipi nominali espliciti. Provala nell’editor.</p><a href="https://github.com/Spyryto/NailLang/releases/tag/v0.61" target="_blank" rel="noopener">Vedi la release</a></li>
       </ol>
-      <p class="footnote">Nel Lab sono selezionabili le release verificate v0.54 e v0.60. Gli altri runtime storici verranno aggiunti soltanto dopo la verifica delle loro API browser.</p>
+      <p class="footnote">Nel Lab sono selezionabili le release verificate v0.54, v0.60 e v0.61. Gli altri runtime storici verranno aggiunti soltanto dopo la verifica delle loro API browser.</p>
     </section>
   </main>
 
