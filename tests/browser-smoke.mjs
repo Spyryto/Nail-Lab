@@ -120,6 +120,8 @@ try {
   await page.waitForFunction(() => window.NailEditor?.getValue().includes("def wrong = true true"),
     null,{timeout:12000});
   // v0.61 uses the actual new compiler/runtime, not a replacement JS parser.
+  await page.getByRole("button",{name:"Scrivi"}).click();
+  await page.locator("#panel-editor").waitFor({state:"visible",timeout:4000});
   await page.locator("#nail-version").selectOption("0.61");
   await page.waitForFunction(() => window.NailEditor?.getValue().startsWith("nail 0.61 ;"),
     null,{timeout:12000});
