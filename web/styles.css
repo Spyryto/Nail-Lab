@@ -430,3 +430,9 @@ button.secondary:hover{background:#ebe5f4}
 @media(prefers-reduced-motion:reduce){
   .hero,.workspace,.result-card{scroll-behavior:auto}
 }
+
+
+/* Inspection panels must keep dark text on the new light background. */
+#panel-inspect .output{
+  background:#f7f5fa;color:#283449;border-color:#d1cce2
+}
