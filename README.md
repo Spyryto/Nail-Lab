@@ -43,6 +43,27 @@ Il parametro non annotato è strutturale; se fosse annotato con `( data : Person
 - La schermata **Leggi** offre l'accesso diretto alla versione corrente, mentre la lezione sul Core AST continua ad aprire la sua versione storica 0.54.
 - CI: test sul vero runtime 0.61, differenza fra record nominali/strutturali e smoke test in Chromium mobile, con screenshot allegati alla build per revisione visiva.
 
+## Interfaccia chiara e diagnostica
+
+Il Lab usa uno stile chiaro avorio/lavanda, il ciano come accento per le
+etichette tecniche e un editor scuro con token ad alto contrasto. Le
+sezioni della documentazione mostrano ora il codice Nail con colorazione
+lessicale anche **fuori** da CodeMirror, senza eseguirlo o reinterpretarlo.
+
+La home ha un solo invito principale ad aprire il laboratorio. La lezione
+storica indica la versione 0.54, selezionabile dall'editor.
+
+La barra sotto **Esegui** mostra:
+- **Esecuzione riuscita**, con tempo misurato nel Worker per **analisi
+  statica ed esecuzione complessiva**.
+- **Errore**, con il messaggio autentico di Nail; il pulsante di salto
+  continua a usare esclusivamente le coordinate fornite dal compilatore.
+
+Il runtime espone `runPlain`, che include compilazione ed esecuzione.
+Non descriviamo quindi il totale come tempo di sola compilazione.
+Non sono stati aggiunti un parser Nail o un compilatore duplicato:
+la colorazione dei frammenti non editabili è puramente visiva.
+
 ## Sviluppo locale
 
 Prerequisiti: Haxe 4.3.7, Node.js 22, curl, unzip.
