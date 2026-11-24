@@ -6,6 +6,7 @@ import js.html.Element;
 import js.html.Worker;
 import js.html.MessageEvent;
 import lab.Bridges.NailEditor;
+import lab.Bridges.NailCatalog;
 import lab.Bridges.NailStorage;
 
 /** Single-column portrait PWA: the UI does not implement a Nail parser or VM. */
@@ -27,6 +28,7 @@ class Main {
   static function updateVersionUi():Void {
     var select:js.html.SelectElement = cast el("nail-version");
     select.value = version;
+    NailCatalog.setVersion(version);
     text("active-version", "Nail v" + version);
     text("editor-version-label", "LABORATORIO · NAIL v" + version);
     text("inspect-version-label", "STRUMENTI · NAIL v" + version);
@@ -35,10 +37,20 @@ class Main {
       : version == "0.60" ? "CoreIR e consolidamento · release storica." : "La versione della lezione sui cinque costruttori.");
   }
 
-  static function loadDraft():Void {
+  static function loadDraft(?replacement:Null<String>):Void {
     var selected = version;
     var epoch = ++draftEpoch;
     loadingDraft = true;
+    if (replacement != null) {
+      source = replacement;
+      ignoreEditorChanges = true;
+      try NailEditor.setValue(source) catch (_:Dynamic) {}
+      ignoreEditorChanges = false;
+      loadingDraft = false;
+      text("code-status", "Esempio caricato · v" + selected);
+      NailStorage.save(storageKey(selected),source);
+      return;
+    }
     text("code-status", "Caricamento bozza v" + selected + "…");
     NailStorage.load(storageKey(selected)).then(function(saved) {
       if (epoch != draftEpoch || selected != version) return null;
@@ -58,7 +70,7 @@ class Main {
     });
   }
 
-  static function switchVersion(next:String):Void {
+  static function switchVersion(next:String, ?exampleSource:Null<String>):Void {
     if (!supported(next) || next == version) return;
     if (saveTimer != null) {
       Browser.window.clearTimeout(saveTimer);
@@ -80,7 +92,7 @@ class Main {
     runFeedback("idle", "Pronto per l’esecuzione");
     text("expand-output", "Apri Esplora per analizzare Nail v" + version + ".");
     text("types-output", "Apri Esplora per analizzare Nail v" + version + ".");
-    loadDraft();
+    loadDraft(exampleSource);
   }
   static var section:String = "read";
   static var worker:Worker;
@@ -149,6 +161,37 @@ class Main {
       el("nav-" + name).setAttribute("aria-current", active ? "page" : "false");
     }
     if (next == "inspect") inspect();
+  }
+
+  static function openExample(exampleVersion:String, exampleSource:String, title:String):Bool {
+    if (!supported(exampleVersion) || exampleSource == null || exampleSource.length == 0) return false;
+    if (exampleVersion == version && source == exampleSource) {
+      show("editor");
+      return true;
+    }
+    // Explicit action, like Mira Studio: never replace a saved draft silently.
+    var question = 'Caricare "' + title + '" in Nail v' + exampleVersion
+      + '?\nSostituirà la bozza di questa versione. Le bozze delle altre versioni non cambiano.';
+    if (!Browser.window.confirm(question)) return false;
+    if (exampleVersion != version) {
+      switchVersion(exampleVersion,exampleSource);
+    } else {
+      if (saveTimer != null) {
+        Browser.window.clearTimeout(saveTimer);
+        saveTimer = null;
+      }
+      newWorker();
+      text("run-button","Esegui");
+      el("run-button").removeAttribute("disabled");
+      el("stop-button").setAttribute("hidden","");
+      clearErrorJump();
+      text("run-output","Premi Esegui per provare l'esempio.");
+      resultState("idle","PRONTO");
+      runFeedback("idle","Esempio caricato · pronto");
+      loadDraft(exampleSource);
+    }
+    show("editor");
+    return true;
   }
 
   static function changed(value:String):Void {
@@ -294,6 +337,7 @@ class Main {
     on("nav-editor", function() show("editor"));
     on("nav-inspect", function() show("inspect"));
     on("nav-history", function() show("history"));
+    NailCatalog.mount(openExample);
     on("run-button", run);
     on("stop-button", stop);
     on("error-jump", function() {

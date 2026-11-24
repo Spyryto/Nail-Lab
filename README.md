@@ -64,6 +64,34 @@ Non descriviamo quindi il totale come tempo di sola compilazione.
 Non sono stati aggiunti un parser Nail o un compilatore duplicato:
 la colorazione dei frammenti non editabili è puramente visiva.
 
+## Catalogo di esempi (come in Mira Studio)
+
+Nella sezione **Scrivi**, il pulsante **Esempi** apre un catalogo
+ricercabile con filtro per argomento e versione. Ogni scheda ha titolo,
+spiegazione, sorgente Nail con syntax highlighting e pulsante
+**Apri nell'editor**. I programmi sono piccoli e rispettano la versione
+dichiarata nel loro header: 0.54, 0.60 o 0.61.
+
+Gli esempi sono descritti in [`catalog/examples.json`](catalog/examples.json),
+un unico file di dati che viene distribuito e conservato offline. Come
+in Mira Studio, sono separati dalla UI. Non esiste un secondo compilatore
+per il catalogo.
+
+Il caricamento chiede conferma **prima di sostituire la bozza della versione
+di destinazione**. L'eventuale programma dell'altra versione rimane nella
+propria bozza. Non viene eseguito nulla automaticamente: si sceglie **Esegui**
+per provare il programma, oppure **Esplora** per vederne l'analisi.
+
+Include anche un errore di tipo intenzionale, etichettato come tale:
+`Person` è nominale quando annotato esplicitamente, mentre
+`data . name` senza annotazione è strutturale nella 0.61.
+
+**Verifica effettiva:** la CI esegue **ogni esempio** con il relativo
+runtime JavaScript ufficiale, controlla output o diagnostica, e testa
+ricerca, filtri, conferma di sostituzione e persistenza delle bozze
+nel browser mobile. Le versioni non disponibili nel Lab non sono
+simulate o dichiarate compatibili.
+
 ## Sviluppo locale
 
 Prerequisiti: Haxe 4.3.7, Node.js 22, curl, unzip.

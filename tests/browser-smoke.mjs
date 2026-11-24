@@ -164,6 +164,41 @@ try {
   assert.equal(await page.locator("#result-card").getAttribute("data-state"),"error");
   assert.equal(await page.locator("#run-feedback").getAttribute("data-state"),"error");
   assert.match(await page.locator("#run-feedback-text").innerText(),/Tipo/);
+  // The example catalog is not a second interpreter: it changes the real
+  // runtime and preserves independent drafts with explicit confirmation.
+  await page.locator("#catalog-open").click();
+  await page.locator("#catalog-dialog").waitFor({state:"visible",timeout:4000});
+  await page.waitForFunction(() => document.querySelectorAll("#catalog-list .catalog-card").length===14,
+    null,{timeout:12000});
+  await page.locator("#catalog-search").fill("strutturale");
+  assert.equal(await page.locator("#catalog-list .catalog-card").count()>0,true);
+  await page.locator("#catalog-search").fill("");
+  await page.locator("#catalog-version").selectOption("0.54");
+  assert.equal(await page.locator("#catalog-list .catalog-card").count(),2);
+  await page.locator("#catalog-category").selectOption("Funzioni");
+  assert.equal(await page.locator("#catalog-list .catalog-card").count(),2);
+  await page.locator("#catalog-category").selectOption("all");
+  page.once("dialog", dialog => dialog.dismiss());
+  await page.locator("#catalog-list .catalog-load").first().click();
+  assert.equal(await page.locator("#catalog-dialog").isVisible(),true);
+  assert.equal(await page.locator("#nail-version").inputValue(),"0.61");
+  page.once("dialog", dialog => dialog.accept());
+  await page.locator("#catalog-list .catalog-load").first().click();
+  await page.locator("#catalog-dialog").waitFor({state:"hidden",timeout:4000});
+  assert.equal(await page.locator("#nail-version").inputValue(),"0.54");
+  await page.waitForFunction(() => window.NailEditor?.getValue().includes("def identityLab"),
+    null,{timeout:12000});
+  await page.getByRole("button",{name:"Esegui",exact:true}).click();
+  await page.waitForFunction(() => document.getElementById("run-output").textContent.includes("true"),
+    null,{timeout:12000});
+  await page.reload({waitUntil:"networkidle"});
+  await page.waitForFunction(() => window.NailEditor?.getValue().includes("def identityLab"),
+    null,{timeout:12000});
+  await page.getByRole("button",{name:"Scrivi"}).click();
+  await page.locator("#nail-version").selectOption("0.61");
+  await page.waitForFunction(() => window.NailEditor?.getValue().includes("def getName ( data : Person )"),
+    null,{timeout:12000});
+  assert.equal(await page.locator("#catalog-dialog").isHidden(),true);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2),true,
     "Mobile layout should not scroll horizontally");
   assert.deepEqual(errors,[],"Browser errors: "+errors.join("\n"));

@@ -13,6 +13,12 @@ extern class NailEditor {
   public static function highlightBlock(id:String):Void;
 }
 
+@:native("NailCatalog")
+extern class NailCatalog {
+  public static function mount(load:(String,String,String)->Bool):Void;
+  public static function setVersion(version:String):Void;
+}
+
 @:native("NailStorage")
 extern class NailStorage {
   public static function load(key:String):js.lib.Promise<Null<String>>;

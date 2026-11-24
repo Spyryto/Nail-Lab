@@ -6,7 +6,7 @@ import vm from "node:vm";
 
 const source = "nail 0.54 ;\ndef identityLab x = x ;\nidentityLab true ;";
 test("PWA shell and compilation artifacts are present", async () => {
-  for (const path of ["index.html", "styles.css", "app.js", "editor.js", "runtime-worker.js", "sw.js", "version.json", "manifest.webmanifest", "runtime/v0.54/nailseed.js", "runtime/v0.60/nailseed.js", "runtime/v0.61/nailseed.js"]) {
+  for (const path of ["index.html", "styles.css", "app.js", "editor.js", "runtime-worker.js", "catalog.js", "examples.json", "sw.js", "version.json", "manifest.webmanifest", "runtime/v0.54/nailseed.js", "runtime/v0.60/nailseed.js", "runtime/v0.61/nailseed.js"]) {
     assert.ok((await stat(new URL("../dist/" + path, import.meta.url))).size > 0, path);
   }
   const html = await readFile(new URL("../dist/index.html",import.meta.url),"utf8");
@@ -20,6 +20,9 @@ test("PWA shell and compilation artifacts are present", async () => {
   assert.match(html, /id="editor-size"/);
   assert.match(html, /id="result-card"/);
   assert.match(html, /id="run-feedback"/);
+  assert.match(html,/id="catalog-open"/);
+  assert.match(html,/id="catalog-dialog"/);
+  assert.match(html,/id="catalog-search"/);
   assert.doesNotMatch(html, /id="read-try"/);
   assert.match(html, /Apri il laboratorio/);
   assert.match(html, /value="0.54"/);
