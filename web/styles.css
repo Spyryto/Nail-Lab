@@ -244,3 +244,189 @@ button:disabled{opacity:.62;cursor:default}
 @media(prefers-reduced-motion:no-preference){
   .primary:active,.secondary:active,.editor-size:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #0a1129}
 }
+
+
+/* Soft daylight palette. Existing layout/grid stays unchanged. */
+:root{
+  --night:#f6f4f1;--night-2:#e8eaf0;--ink:#26324a;--cream:#283449;
+  --lilac:#aa9dc9;--lime:#a9e5e5;--pink:#edbdc7;--blue:#98cadb;
+  --cyan:#087f91;--muted:#526176;--edge:#bac3d1;
+  background:#f6f4f1;color:#283449;color-scheme:light
+}
+body{
+  color:#283449;
+  background:
+    radial-gradient(ellipse 80% 360px at 100% 8%,#dfd9ee88,transparent 75%),
+    radial-gradient(ellipse 90% 420px at -25% 60%,#deebee88,transparent 70%),
+    linear-gradient(165deg,#f9f7f4,#f1f0f6 65%,#f8f5f1)
+}
+.topbar{
+  background:#fffdfbf7;border-color:#d6d4e1;
+  box-shadow:0 3px 20px #4b506215
+}
+.wordmark{color:#253047}
+.brand-symbol{
+  color:#213b50;background:#a2dfe7;border-color:#4b5c71;
+  box-shadow:3px 3px 0 #d6c5e7
+}
+.brand-spark{color:#b86e91;text-shadow:1px 1px 0 #fff}
+.brand-tail{color:#9d628c}
+.version{
+  color:#146979;border-color:#9bbfc8;background:#e5f6f6
+}
+.version:before{background:#349ba9}
+.eyebrow{color:#087d90}
+.eyebrow-dot{background:#61b6bf}
+h1,h2{color:#25304a}
+.muted,.footnote,.hint,.status{color:#59677b}
+.hero{
+  background:linear-gradient(145deg,#f3e8f5 0%,#fceeea 56%,#d9eaf3 100%);
+  border-color:#b6accb;box-shadow:5px 6px 0 #ccc8d6;
+  color:#27334c
+}
+.hero .eyebrow{color:#087887}
+.hero .eyebrow-dot{background:#58bbc5}
+.hero .headline-accent{color:#72568e}
+.headline-accent{color:#99739c}
+.hero .lede{color:#38465e}
+.hero-glyph{
+  background:#a6dbe8;color:#283950;border-color:#4b5878;
+  box-shadow:6px 6px 0 #dcc8e8
+}
+.hero-star{color:#b982a2;text-shadow:2px 2px 0 #fff9}
+.hero-chip{
+  background:#eee2f4;color:#4a4766;border-color:#8b829e;
+  box-shadow:3px 3px 0 #c6b9d2
+}
+.hero-note{color:#57647a}
+.lesson-tag{
+  background:#d8e9f0;color:#31566b;border-color:#98adbc;
+  box-shadow:4px 4px 0 #ead5e1
+}
+.section-intro .eyebrow{color:#087f91}
+.explain{
+  background:#fffaf7;border-color:#d0c6db;
+  box-shadow:4px 4px 0 #e4dde9
+}
+.explain h2{color:#425e80}
+.explain dl>div{border-color:#e2dce8}
+.explain dt{color:#126b82}
+.explain dd{color:#3e4a5f}
+.example{
+  background:#fdfaf7;color:#28364d;border:1.5px solid #c9c0d7;
+  border-left:5px solid #9ac4d0;box-shadow:0 4px 16px #545e7814
+}
+.lesson-info{
+  font-size:13px;line-height:1.55;padding:12px 14px;
+  background:#e8f2f5;color:#3b6374;border-radius:12px;
+  border:1px solid #bed8df;margin:20px 0 4px
+}
+button.primary{
+  background:#afdce8;color:#27374e;border-color:#849eb1;
+  box-shadow:3px 3px 0 #d8c8e4
+}
+button.primary:hover{background:#c5eaf1}
+button.secondary{
+  background:#f5f2f8;color:#31415d;border-color:#b7adc9
+}
+button.secondary:hover{background:#ebe5f4}
+.editor-heading .headline-accent{color:#ab779e}
+.workspace{
+  background:#fffdfa;border-color:#c7bfd5;
+  box-shadow:5px 6px 0 #dfdbe7
+}
+.workspace-bar{
+  background:linear-gradient(100deg,#dfd1ed,#d4e9f1);
+  border-color:#c5bfd4;color:#36415a
+}
+.window-dots i{border-color:#7e8097;background:#e5a7af}
+.window-dots i:nth-child(2){background:#f2d5a4}
+.window-dots i:nth-child(3){background:#a2d9d4}
+.editor-size{
+  background:#fffefa;color:#3d4962;border-color:#abb2c4
+}
+.editor-size:hover{background:#e2f3f5}
+.version-picker{color:#42506a}
+.version-picker select{
+  background:#f5f1fa;color:#3a4a68;
+  border-color:#b7afc9
+}
+.runtime-note{color:#58677c}
+.code-editor{
+  background:#22283d;border-color:#76839b;
+  box-shadow:inset 0 0 0 1px #28324a
+}
+.run-row .primary{
+  background:#addce6;color:#26334c;border-color:#85abb8
+}
+.run-row .primary:hover{background:#c1e8f0}
+.workspace .status{color:#617384}
+.result-card{
+  background:#fffdfa;border-color:#c9c4d7;
+  box-shadow:4px 5px 0 #e0dce8
+}
+.result-heading h2{color:#263751}
+.result-heading h2 span{color:#4391a3}
+.result-state{color:#4c6175;background:#edf0f6}
+.result-card[data-state="success"]{border-color:#9dc9c7}
+.result-card[data-state="success"] .result-state{background:#cdece5;color:#20594f}
+.result-card[data-state="error"]{border-color:#e3b5bf}
+.result-card[data-state="error"] .result-state{background:#fbe1e5;color:#904c5c}
+.result-card[data-state="running"] .result-state{background:#e0eaf3;color:#3e6482}
+.result-card .output{
+  background:#f6f5f9;color:#2c3852;
+  border-color:#dfdae8
+}
+.tabs{background:#eae7f0;border-color:#d0c7dd}
+.tab{color:#5b637c}
+.tab[aria-selected=true]{color:#2b5268;background:#c4e7ec}
+.timeline{border-color:#b4adca}
+.timeline li:before{border-color:#f8f6f3;background:#c6a6b9}
+.timeline li:nth-child(2n):before{background:#acd9df}
+.tag{border-color:#b6b0cd;color:#526b86}
+.timeline li strong{color:#303b54}
+.timeline li p{color:#59667d}
+.bottom-nav{
+  background:#fffdfa;border-color:#d5cfe0;box-shadow:0 -4px 25px #5157771a
+}
+.bottom-nav button{color:#68748c}
+.bottom-nav button[aria-current=page]{
+  color:#2e5b70;background:#d9eef1;box-shadow:inset 0 0 0 1.5px #b2d4df
+}
+.update-banner{
+  color:#31415a;background:#e4f4f5;
+  border-color:#b6cbd8;box-shadow:4px 4px 0 #e9d3e1
+}
+.update-banner .primary{background:#d9ebee}
+
+/* High-contrast colour for the reader's non-editable code examples.
+   Tokenization is only visual; the actual parser stays inside Nail. */
+.nail-token-keyword{color:#3b5d96;font-weight:750}
+.nail-token-type{color:#086c76;font-weight:700}
+.nail-token-number{color:#825b34}
+.nail-token-string{color:#9a4a70}
+.nail-token-comment{color:#6a7987;font-style:italic}
+
+/* Single execution/status line, modelled on the unobtrusive Mira Studio bar. */
+.run-feedback{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  gap:5px 12px;padding:10px 13px;margin:12px 0 0;
+  background:#eef2f5;border-top:1px solid #d3dce5;
+  font-size:12px;color:#456178
+}
+.run-feedback-message{display:flex;align-items:baseline;gap:8px;min-width:0;flex:1}
+.run-feedback-dot{
+  width:8px;height:8px;flex:0 0 8px;
+  border-radius:50%;background:#8796a8
+}
+#run-feedback-text{overflow-wrap:anywhere}
+.run-feedback-time{white-space:nowrap;color:#527282;font-variant-numeric:tabular-nums}
+.run-feedback[data-state=success]{background:#e5f3ee;color:#315e55;border-top-color:#bdded3}
+.run-feedback[data-state=success] .run-feedback-dot{background:#3c907f}
+.run-feedback[data-state=error]{background:#f9e7e8;color:#924d58;border-top-color:#ecc5ce}
+.run-feedback[data-state=error] .run-feedback-dot{background:#ae5d67}
+.run-feedback[data-state=running]{background:#e7eff7;color:#3d5f7f}
+.run-feedback[data-state=running] .run-feedback-dot{background:#6d98bb}
+@media(prefers-reduced-motion:reduce){
+  .hero,.workspace,.result-card{scroll-behavior:auto}
+}
