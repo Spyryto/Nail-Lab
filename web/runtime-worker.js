@@ -1,7 +1,8 @@
 /* Official, versioned Nail runtimes. Each Worker loads exactly one version. */
 const runtimePaths = Object.freeze({
   "0.54": "./runtime/v0.54/nailseed.js",
-  "0.60": "./runtime/v0.60/nailseed.js"
+  "0.60": "./runtime/v0.60/nailseed.js",
+  "0.61": "./runtime/v0.61/nailseed.js"
 });
 const version = self.location?.search
   ? new URLSearchParams(self.location.search).get("version") || "0.54"
