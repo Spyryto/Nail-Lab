@@ -35,6 +35,10 @@ page.on("console",msg=>{if(msg.type()==="error") errors.push("console: "+msg.tex
 try {
   const response=await page.goto('http://127.0.0.1:'+port+'/',{waitUntil:"networkidle"});
   assert.equal(response.status(),200);
+  // The home screen must have one clear CTA, with a coloured source example.
+  assert.equal(await page.locator("#read-open-latest").count(),1);
+  assert.equal(await page.locator("#read-try").count(),0);
+  assert.equal(await page.locator("pre.example code .nail-token-keyword").count()>0,true);
   await mkdir("test-results",{recursive:true});
   await page.screenshot({path:"test-results/nail-lab-home.png",fullPage:true});
   await page.getByRole("button",{name:"Scrivi"}).click();
@@ -46,6 +50,9 @@ try {
     null, {timeout:12000});
   await page.getByRole("button",{name:"Esegui",exact:true}).click();
   await page.waitForFunction(()=>document.getElementById("run-output").textContent.includes("true"),{timeout:12000});
+  assert.equal(await page.locator("#run-feedback").getAttribute("data-state"),"success");
+  assert.match(await page.locator("#run-feedback-time").innerText(),/ms · analisi \+ esecuzione/);
+  assert.equal(await page.locator("#run-feedback-time").isVisible(),true);
   await page.getByRole("button",{name:"Esplora"}).click();
   await page.locator("#panel-inspect").waitFor({state:"visible",timeout:4000});
   await page.getByRole("tab",{name:"Tipi e simboli"}).click();
@@ -58,6 +65,9 @@ try {
     ()=>document.getElementById("run-output").textContent.includes("riga 2, colonna"),
     null,{timeout:12000}
   );
+  assert.equal(await page.locator("#run-feedback").getAttribute("data-state"),"error");
+  assert.match(await page.locator("#run-feedback-text").innerText(),/riga 2, colonna/);
+  assert.equal(await page.locator("#run-feedback-time").isHidden(),true);
   const renderedError = await page.locator("#run-output").innerText();
   assert.doesNotMatch(renderedError,/at token \d+/);
   await page.getByRole("button",{name:/Vai a riga 2, colonna/}).click();
@@ -134,6 +144,8 @@ try {
   await page.waitForFunction(() => document.getElementById("run-output").textContent.includes("Ada") &&
     document.getElementById("run-output").textContent.includes("Mario"),null,{timeout:12000});
   assert.equal(await page.locator("#result-card").getAttribute("data-state"),"success");
+  assert.equal(await page.locator("#run-feedback").getAttribute("data-state"),"success");
+  assert.match(await page.locator("#run-feedback-time").innerText(),/ms/);
   await page.screenshot({path:"test-results/nail-lab-editor-061.png",fullPage:true});
   await page.locator(".cm-content").fill(
     'nail 0.61 ; type Person { name Text age Float } ; ' +
@@ -144,6 +156,8 @@ try {
   await page.waitForFunction(() => document.getElementById("run-output").textContent.includes("Tipo"),
     null,{timeout:12000});
   assert.equal(await page.locator("#result-card").getAttribute("data-state"),"error");
+  assert.equal(await page.locator("#run-feedback").getAttribute("data-state"),"error");
+  assert.match(await page.locator("#run-feedback-text").innerText(),/Tipo/);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2),true,
     "Mobile layout should not scroll horizontally");
   assert.deepEqual(errors,[],"Browser errors: "+errors.join("\n"));
