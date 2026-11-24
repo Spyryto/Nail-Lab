@@ -200,6 +200,9 @@ class Main {
           : (msg.diagnosticText != null
             ? Std.string(msg.diagnosticText)
             : (msg.ok ? Json.stringify(msg.analysis, null, "  ") : Std.string(msg.error))));
+        if (msg.ok && msg.expandError==null) {
+          try NailEditor.highlightBlock("expand-output") catch (_:Dynamic) {}
+        }
         showErrorJump(msg.diagnostic);
       }
     };
@@ -310,6 +313,7 @@ class Main {
 
     try {
       NailEditor.mount("code-editor", source, changed);
+      NailEditor.highlightExamples();
     } catch (error:Dynamic) {
       text("code-status", "Editor non disponibile: " + Std.string(error));
       return;
