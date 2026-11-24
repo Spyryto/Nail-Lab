@@ -1,0 +1,189 @@
+{
+  "schema": 1,
+  "description": "Esempi eseguibili con le release ufficiali di Nail",
+  "examples": [
+    {
+      "id": "hello-061",
+      "title": "Il primo valore",
+      "category": "Basi",
+      "version": "0.61",
+      "summary": "Una definizione e il suo risultato. Nessun print implicito.",
+      "source": "nail 0.61 ;\ndef answer = 42 ;\nanswer ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          "I:42/1"
+        ]
+      },
+      "reference": "examples/hello-061.nail"
+    },
+    {
+      "id": "twice-061",
+      "title": "Una funzione: raddoppia",
+      "category": "Funzioni",
+      "version": "0.61",
+      "summary": "Una funzione riceve un argomento e restituisce il doppio.",
+      "source": "nail 0.61 ;\ndef twice x = x * 2 ;\ntwice 21 ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          "I:42/1"
+        ]
+      }
+    },
+    {
+      "id": "add-061",
+      "title": "Funzioni a due argomenti",
+      "category": "Funzioni",
+      "version": "0.61",
+      "summary": "Funzioni curried senza parentesi obbligatorie.",
+      "source": "nail 0.61 ;\ndef add x y = x + y ;\nadd 20 22 ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          "I:42/1"
+        ]
+      }
+    },
+    {
+      "id": "choice-061",
+      "title": "Una scelta con if",
+      "category": "Basi",
+      "version": "0.61",
+      "summary": "Un’espressione condizionale produce un valore.",
+      "source": "nail 0.61 ;\nif true then 42 else 0 ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          "I:42/1"
+        ]
+      }
+    },
+    {
+      "id": "ratio-061",
+      "title": "Numeri esatti",
+      "category": "Numeri",
+      "version": "0.61",
+      "summary": "La divisione tra interi conserva la frazione.",
+      "source": "nail 0.61 ;\n1 / 3 + 1 / 6 ;",
+      "expect": {
+        "kind": "ok"
+      }
+    },
+    {
+      "id": "practice-061",
+      "title": "Sessione di chitarra",
+      "category": "Record",
+      "version": "0.61",
+      "summary": "Un record anonimo con tempo e durata dello studio.",
+      "source": "nail 0.61 ;\ndef practice = { bpm = 116 , minutes = 20 } ;\npractice . bpm ;\npractice . minutes ;",
+      "expect": {
+        "kind": "ok"
+      }
+    },
+    {
+      "id": "person-061",
+      "title": "Un record nominale",
+      "category": "Record",
+      "version": "0.61",
+      "summary": "Il costruttore Person crea un valore con identità nominale.",
+      "source": "nail 0.61 ;\ntype Person { name Text age Float } ;\ndef person = Person \" Ada \" 19.0 ;\nperson . name ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          "Ada"
+        ]
+      }
+    },
+    {
+      "id": "row-061",
+      "title": "Un accesso strutturale",
+      "category": "Record",
+      "version": "0.61",
+      "summary": "data . name accetta record anonimi e nominali con lo stesso campo.",
+      "source": "nail 0.61 ;\ntype Person { name Text age Float } ;\ndef getName data = data . name ;\ngetName { name = \" Daniele \" , age = 19.0 } ;\ngetName ( Person \" Mario \" 46.0 ) ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          "Daniele",
+          "Mario"
+        ]
+      },
+      "reference": "examples/structural-projection-061.nail"
+    },
+    {
+      "id": "nominal-061",
+      "title": "Un vincolo nominale",
+      "category": "Record",
+      "version": "0.61",
+      "summary": "L’annotazione (data : Person) richiede proprio un Person.",
+      "source": "nail 0.61 ;\ntype Person { name Text age Float } ;\ndef getName ( data : Person ) = data . name ;\ngetName ( Person \" Ada \" 19.0 ) ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          "Ada"
+        ]
+      }
+    },
+    {
+      "id": "nominal-error-061",
+      "title": "Errore: tipi diversi",
+      "category": "Errori",
+      "version": "0.61",
+      "summary": "Esempio volutamente errato: un record anonimo non è Person.",
+      "source": "nail 0.61 ;\ntype Person { name Text age Float } ;\ndef getName ( data : Person ) = data . name ;\ngetName { name = \" Ada \" , age = 19.0 } ;",
+      "expect": {
+        "kind": "error",
+        "phase": "type"
+      }
+    },
+    {
+      "id": "hello-060",
+      "title": "Il primo valore in 0.60",
+      "category": "Basi",
+      "version": "0.60",
+      "summary": "Confronta il programma minimo prima dell’inferenza aperta della 0.61.",
+      "source": "nail 0.60 ;\ndef answer = 42 ;\nanswer ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          "I:42/1"
+        ]
+      },
+      "reference": "examples/hello-060.nail"
+    },
+    {
+      "id": "identity-060",
+      "title": "Identità in 0.60",
+      "category": "Funzioni",
+      "version": "0.60",
+      "summary": "Una funzione polimorfa che restituisce il suo argomento.",
+      "source": "nail 0.60 ;\ndef identity x = x ;\nidentity true ;",
+      "expect": {
+        "kind": "ok"
+      }
+    },
+    {
+      "id": "identity-054",
+      "title": "Identità storica",
+      "category": "Funzioni",
+      "version": "0.54",
+      "summary": "Il piccolo programma usato nella prima lezione del Lab.",
+      "source": "nail 0.54 ;\ndef identityLab x = x ;\nidentityLab true ;",
+      "expect": {
+        "kind": "ok"
+      }
+    },
+    {
+      "id": "twice-054",
+      "title": "Raddoppia in 0.54",
+      "category": "Funzioni",
+      "version": "0.54",
+      "summary": "Una semplice funzione nella vecchia release.",
+      "source": "nail 0.54 ;\ndef twice x = x * 2 ;\ntwice 21 ;",
+      "expect": {
+        "kind": "ok"
+      }
+    }
+  ]
+}
