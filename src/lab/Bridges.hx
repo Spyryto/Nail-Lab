@@ -9,6 +9,8 @@ extern class NailEditor {
   public static function goTo(line:Int, column:Int):Bool;
   public static function markDiagnostic(span:Dynamic, kind:String):Bool;
   public static function clearDiagnostic():Void;
+  public static function highlightExamples():Void;
+  public static function highlightBlock(id:String):Void;
 }
 
 @:native("NailStorage")
