@@ -57,8 +57,16 @@ function matchesExecutionFailure(diagnostic, error) {
   return raw === reported;
 }
 
+function clockMs() {
+  return typeof performance !== "undefined" && typeof performance.now === "function"
+    ? performance.now() : Date.now();
+}
+
 self.onmessage = function(event) {
   const {id, kind, source} = event.data || {};
+  const startMs = clockMs();
+  const elapsedMs = () => Math.max(0, Math.round((clockMs() - startMs) * 100) / 100);
+  const sendRun = payload => self.postMessage({...payload, durationMs: elapsedMs()});
   try {
     if (loadError) throw new Error("Runtime non disponibile: " + loadError);
     if (typeof source !== "string" || source.length > 16000) throw new Error("Sorgente non valido o troppo lungo");
@@ -70,7 +78,7 @@ self.onmessage = function(event) {
       const analysis = analyzeSafely(source);
       const staticDiagnostic = firstDiagnostic(analysis);
       if (staticDiagnostic?.phase === "type") {
-        self.postMessage({
+        sendRun({
           id, kind, version, source, ok: false,
           error: formatDiagnostic(staticDiagnostic),
           diagnostic: sourceLocation(staticDiagnostic) ? staticDiagnostic : null
@@ -81,12 +89,12 @@ self.onmessage = function(event) {
         const vm = self.NailSeed.create(100000);
         vm.loadStdlib();
         const result = vm.runPlain(source);
-        self.postMessage({id, kind, version, source, ok: true, result});
+        sendRun({id, kind, version, source, ok: true, result});
       } catch (error) {
         const original = String(error);
         const diagnostic = staticDiagnostic || firstDiagnostic(analyzeSafely(source));
         const matched = matchesExecutionFailure(diagnostic, original);
-        self.postMessage({
+        sendRun({
           id, kind, version, source, ok: false,
           error: matched ? formatDiagnostic(diagnostic) : "Errore: " + original,
           diagnostic: matched && sourceLocation(diagnostic) ? diagnostic : null
@@ -110,6 +118,7 @@ self.onmessage = function(event) {
       });
     }
   } catch (error) {
-    self.postMessage({id, kind, version, source, ok: false, error: "Errore: " + String(error)});
+    const payload = {id, kind, version, source, ok: false, error: "Errore: " + String(error)};
+    if (kind === "run") sendRun(payload); else self.postMessage(payload);
   }
 };
