@@ -57,6 +57,12 @@ try {
   await page.locator("#panel-inspect").waitFor({state:"visible",timeout:4000});
   await page.getByRole("tab",{name:"Tipi e simboli"}).click();
   await page.waitForFunction(()=>document.getElementById("types-output").textContent.includes('"ok": true'),null,{timeout:12000});
+  const inspectColors = await page.locator("#types-output").evaluate(el => {
+    const style = getComputedStyle(el);
+    return {text:style.color,background:style.backgroundColor};
+  });
+  assert.equal(inspectColors.text,"rgb(40, 52, 73)");
+  assert.equal(inspectColors.background,"rgb(247, 245, 250)");
   // A syntax error must display source coordinates and offer direct navigation.
   await page.getByRole("button",{name:"Scrivi"}).click();
   await page.locator(".cm-content").fill("nail 0.54 ;\ndef broken x = ;\nbroken true ;");
