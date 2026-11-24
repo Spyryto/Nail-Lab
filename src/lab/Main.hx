@@ -11,16 +11,18 @@ import lab.Bridges.NailStorage;
 /** Single-column portrait PWA: the UI does not implement a Nail parser or VM. */
 class Main {
   static inline var VERSION_KEY = "nail-lab:selected-version";
-  static var version:String = "0.60";
-  static var source:String = defaultSource("0.60");
+  static var version:String = "0.61";
+  static var source:String = defaultSource("0.61");
   static var ignoreEditorChanges:Bool = false;
   static var draftEpoch:Int = 0;
   static var loadingDraft:Bool = false;
 
-  static function supported(value:String):Bool return value == "0.54" || value == "0.60";
+  static function supported(value:String):Bool return value == "0.54" || value == "0.60" || value == "0.61";
   static function storageKey(value:String):String return "v" + value + ":core-ast:source";
-  static function defaultSource(value:String):String
+  static function defaultSource(value:String):String {
+    if (value == "0.61") return "nail 0.61 ;\ntype Person { name Text age Float } ;\ndef getName data = data . name ;\ngetName { name = \" Ada \" , age = 19.0 } ;\ngetName ( Person \" Mario \" 46.0 ) ;";
     return "nail " + value + " ;\ndef identityLab x = x ;\nidentityLab true ;";
+  }
 
   static function updateVersionUi():Void {
     var select:js.html.SelectElement = cast el("nail-version");
@@ -28,6 +30,9 @@ class Main {
     text("active-version", "Nail v" + version);
     text("editor-version-label", "LABORATORIO · NAIL v" + version);
     text("inspect-version-label", "STRUMENTI · NAIL v" + version);
+    text("runtime-note", version == "0.61"
+      ? "Novità: un campo su un parametro senza annotazione è strutturale; ( data : Person ) resta nominale."
+      : version == "0.60" ? "CoreIR e consolidamento · release storica." : "La versione della lezione sui cinque costruttori.");
   }
 
   static function loadDraft():Void {
@@ -71,6 +76,7 @@ class Main {
     el("run-button").removeAttribute("disabled");
     el("stop-button").setAttribute("hidden", "");
     text("run-output", "Premi Esegui per provare Nail v" + version + ".");
+    resultState("idle", "PRONTO");
     text("expand-output", "Apri Esplora per analizzare Nail v" + version + ".");
     text("types-output", "Apri Esplora per analizzare Nail v" + version + ".");
     loadDraft();
@@ -114,6 +120,10 @@ class Main {
   }
 
   static function text(id:String, value:String):Void el(id).textContent = value;
+  static function resultState(state:String, caption:String):Void {
+    el("result-card").setAttribute("data-state", state);
+    text("result-state", caption);
+  }
   static function on(id:String, callback:Void->Void):Void
     el(id).addEventListener("click", function(_) callback());
 
@@ -162,6 +172,7 @@ class Main {
         text("run-output", msg.ok
           ? Json.stringify(msg.result, null, "  ")
           : Std.string(msg.error));
+        resultState(msg.ok ? "success" : "error", msg.ok ? "COMPLETATO" : "ERRORE");
         showErrorJump(msg.ok ? null : msg.diagnostic);
       } else if (msg.kind == "inspect") {
         text("expand-output", msg.expandError != null
@@ -179,6 +190,7 @@ class Main {
     };
     worker.onerror = function(_) {
       text("run-output", "Errore nel Worker Nail. Prova a riavviare.");
+      resultState("error", "ERRORE");
       el("run-button").removeAttribute("disabled");
       text("run-button", "Esegui");
       el("stop-button").setAttribute("hidden", "");
@@ -198,6 +210,7 @@ class Main {
     el("run-button").setAttribute("disabled", "");
     el("stop-button").removeAttribute("hidden");
     text("run-output", "Elaborazione in corso…");
+    resultState("running", "IN ESECUZIONE");
     worker.postMessage({id:serial, kind:"run", source:source});
   }
 
@@ -205,6 +218,7 @@ class Main {
     newWorker();
     clearErrorJump();
     text("run-output", "Esecuzione interrotta.");
+    resultState("idle", "INTERROTTO");
     text("run-button", "Esegui");
     el("run-button").removeAttribute("disabled");
     el("stop-button").setAttribute("hidden", "");
@@ -245,6 +259,17 @@ class Main {
       switchVersion(select.value);
     });
     on("nav-read", function() show("read"));
+    on("read-open-latest", function() {
+      if (version != "0.61") switchVersion("0.61");
+      show("editor");
+      try NailEditor.focus() catch (_:Dynamic) {}
+    });
+    on("editor-size", function() {
+      var panel=el("panel-editor");
+      var expand=panel.getAttribute("data-expanded") != "true";
+      panel.setAttribute("data-expanded", expand ? "true" : "false");
+      text("editor-size", expand ? "Riduci" : "Amplia");
+    });
     on("nav-editor", function() show("editor"));
     on("nav-inspect", function() show("inspect"));
     on("nav-history", function() show("history"));
