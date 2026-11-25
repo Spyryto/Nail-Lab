@@ -209,4 +209,10 @@ test("experimental Worker runs, analyzes and expands the same source", async () 
   assert.equal(messages[2].ok,false);
   assert.equal(messages[2].diagnostic.phase,"type");
   assert.equal(messages[2].diagnostic.span.line,5);
+  const sum="nail 0.61 ; def summ x y = x + y ; summ 15 3 ; def add-three = summ y: 3 ; add-three 10 ;";
+  sandbox.onmessage({data:{kind:"run",id:4,source:sum}});
+  assert.equal(messages[3].ok,true,JSON.stringify(messages[3]));
+  assert.deepEqual(Array.from(messages[3].result),["I:18/1","I:13/1"]);
+  sandbox.onmessage({data:{kind:"inspect",id:5,source:sum}});
+  assert.equal(messages[4].analysis.symbols.find(s=>s.name==="summ").signature,"Add a b c => a -> b -> c");
 });
