@@ -168,7 +168,7 @@ try {
   // runtime and preserves independent drafts with explicit confirmation.
   await page.locator("#catalog-open").click();
   await page.locator("#catalog-dialog").waitFor({state:"visible",timeout:4000});
-  await page.waitForFunction(() => document.querySelectorAll("#catalog-list .catalog-card").length===18,
+  await page.waitForFunction(() => document.querySelectorAll("#catalog-list .catalog-card").length===20,
     null,{timeout:12000});
   await page.locator("#catalog-search").fill("strutturale");
   assert.equal(await page.locator("#catalog-list .catalog-card").count()>0,true);
@@ -210,6 +210,16 @@ try {
   await page.locator(".cm-content").fill("nail 0.61 ;\ndef summ x y = x + y ;\nsumm 15 3 ;\ndef add-three = summ y: 3 ;\nadd-three 10 ;");
   await page.getByRole("button",{name:"Esegui",exact:true}).click();
   await page.waitForFunction(()=>document.getElementById("run-output").textContent.includes("I:18/1") && document.getElementById("run-output").textContent.includes("I:13/1"),null,{timeout:12000});
+  await page.locator("#nail-version").selectOption("0.61");
+  await page.waitForFunction(()=>window.NailEditor?.getValue().includes("def getName ( data : Person )"),null,{timeout:12000});
+  await page.locator("#nail-version").selectOption("stdlib");
+  await page.waitForFunction(()=>window.NailEditor?.getValue().includes("map using:"),null,{timeout:12000});
+  await page.getByRole("button",{name:"Esegui",exact:true}).click();
+  await page.waitForFunction(()=>document.getElementById("run-feedback").getAttribute("data-state")==="success",null,{timeout:12000});
+  await page.getByRole("button",{name:"Esplora"}).click();
+  await page.getByRole("tab",{name:"Tipi e simboli"}).click();
+  await page.waitForFunction(()=>document.getElementById("types-output").textContent.includes("Number"),null,{timeout:12000});
+  await page.getByRole("button",{name:"Scrivi"}).click();
   await page.locator("#nail-version").selectOption("0.61");
   await page.waitForFunction(()=>window.NailEditor?.getValue().includes("def getName ( data : Person )"),null,{timeout:12000});
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2),true,
