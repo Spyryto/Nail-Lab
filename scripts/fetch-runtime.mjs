@@ -52,7 +52,7 @@ for (const version of versions) {
 }
 
 // Experimental source is pinned independently of the official release ZIPs.
-const experimentCommit = "be5faade1bfc6573513f88843d18b5cc6ac5b76c";
+const experimentCommit = "99649869bb368ff2a46ad437a8a18bef25f96e97";
 const experimentDestination = join(root, "vendor", "nailseed-vsyntax.js");
 const stamp = join(root, "vendor", "syntax-commit.txt");
 let cached = false;
