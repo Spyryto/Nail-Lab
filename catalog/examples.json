@@ -278,6 +278,37 @@
         "kind": "error",
         "phase": "type"
       }
+    },
+    {
+      "id": "syntax-inferred-ratio",
+      "title": "Il risultato è già Ratio",
+      "category": "Sintassi sperimentale",
+      "version": "syntax",
+      "summary": "Il vincolo Div conserva il tipo dell’argomento, ma tutte le righe compatibili determinano già Ratio come risultato.",
+      "source": "nail 0.61 ;\ndef half x = x / 2 ;\nhalf 3 ;\nhalf ( 3 / 2 ) ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          "R:3/2",
+          "R:3/4"
+        ]
+      }
+    },
+    {
+      "id": "syntax-compare",
+      "title": "Confronti numerici polimorfi",
+      "category": "Sintassi sperimentale",
+      "version": "syntax",
+      "summary": "La stessa funzione è specializzata indipendentemente per numeri interi, razionali e Float.",
+      "source": "nail 0.61 ;\ndef less a b = a < b ;\nless 1 2 ;\nless 1.5 2.5 ;\nless ( 1 / 2 ) 3 ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          true,
+          true,
+          true
+        ]
+      }
     }
   ]
 }
