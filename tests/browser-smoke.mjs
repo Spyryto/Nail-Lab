@@ -168,7 +168,7 @@ try {
   // runtime and preserves independent drafts with explicit confirmation.
   await page.locator("#catalog-open").click();
   await page.locator("#catalog-dialog").waitFor({state:"visible",timeout:4000});
-  await page.waitForFunction(() => document.querySelectorAll("#catalog-list .catalog-card").length===20,
+  await page.waitForFunction(() => document.querySelectorAll("#catalog-list .catalog-card").length===22,
     null,{timeout:12000});
   await page.locator("#catalog-search").fill("strutturale");
   assert.equal(await page.locator("#catalog-list .catalog-card").count()>0,true);
