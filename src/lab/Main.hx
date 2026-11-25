@@ -18,9 +18,10 @@ class Main {
   static var draftEpoch:Int = 0;
   static var loadingDraft:Bool = false;
 
-  static function supported(value:String):Bool return value == "0.54" || value == "0.60" || value == "0.61" || value == "syntax";
+  static function supported(value:String):Bool return value == "0.54" || value == "0.60" || value == "0.61" || value == "syntax" || value == "stdlib";
   static function storageKey(value:String):String return "v" + value + ":core-ast:source";
   static function defaultSource(value:String):String {
+    if (value == "stdlib") return "def inc-all = map using: ( fun x -> x + 1 ) ;\ninc-all [ 1 , 2 , 3 ] ;\n[ 1 , 2 , 3 ] >> map using: ( fun x -> x * 2 ) ;\nfold using: ( fun acc x -> acc + x ) initial: 0 items: [ 1 , 2 , 3 ] ;";
     if (value == "syntax") return "nail 0.61 ;\ndef fraction numerator: ( a : Int ) denominator: ( b : Int ) = a / b ;\ndef half = fraction denominator: 2 ;\nhalf 3 ;\n3 >> fraction denominator: 2 ;";
     if (value == "0.61") return "nail 0.61 ;\ntype Person { name Text age Float } ;\ndef getName data = data . name ;\ngetName { name = \" Ada \" , age = 19.0 } ;\ngetName ( Person \" Mario \" 46.0 ) ;";
     return "nail " + value + " ;\ndef identityLab x = x ;\nidentityLab true ;";
@@ -30,11 +31,11 @@ class Main {
     var select:js.html.SelectElement = cast el("nail-version");
     select.value = version;
     NailCatalog.setVersion(version);
-    var label = version == "syntax" ? "Sintassi sperimentale" : "Nail v" + version;
+    var label = version == "stdlib" ? "Stdlib sperimentale" : version == "syntax" ? "Sintassi sperimentale" : "Nail v" + version;
     text("active-version", label);
     text("editor-version-label", "LABORATORIO · " + label);
     text("inspect-version-label", "STRUMENTI · " + label);
-    text("runtime-note", version == "syntax" ? "Esperimento 0.61 · label rinominate, currying, pipeline e inferenza numerica. Non è una release ufficiale." : version == "0.61"
+    text("runtime-note", version == "stdlib" ? "Dogfooding · stdlib rifattorizzata, liste e collezioni verificate. Numeri legacy (Number); nessun header nail 0.61." : version == "syntax" ? "Esperimento 0.61 · label rinominate, currying, pipeline e inferenza numerica. Non è una release ufficiale." : version == "0.61"
       ? "Novità: un campo su un parametro senza annotazione è strutturale; ( data : Person ) resta nominale."
       : version == "0.60" ? "CoreIR e consolidamento · release storica." : "La versione della lezione sui cinque costruttori.");
   }

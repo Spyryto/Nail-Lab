@@ -3,12 +3,14 @@ const runtimePaths = Object.freeze({
   "0.54": "./runtime/v0.54/nailseed.js",
   "0.60": "./runtime/v0.60/nailseed.js",
   "0.61": "./runtime/v0.61/nailseed.js",
-  "syntax": "./runtime/vsyntax/nailseed.js"
+  "syntax": "./runtime/vsyntax/nailseed.js",
+  "stdlib": "./runtime/vsyntax/nailseed.js"
 });
 const version = self.location?.search
   ? new URLSearchParams(self.location.search).get("version") || "0.54"
   : "0.54"; // Existing test harness and old client default.
-const experimental = version === "syntax";
+const library = version === "stdlib";
+const experimental = version === "syntax" || library;
 let loadError = null;
 try {
   if (!Object.prototype.hasOwnProperty.call(runtimePaths, version))
@@ -48,7 +50,8 @@ function firstDiagnostic(report) {
     ? report.diagnostics[0] : null;
 }
 function analyzeSource(source) {
-  return experimental ? self.NailSeed.analyzeExperimental(source) : self.NailSeed.analyze(source);
+  return library ? self.NailSeed.analyzeExperimentalStdlib(source)
+    : experimental ? self.NailSeed.analyzeExperimental(source) : self.NailSeed.analyze(source);
 }
 function analyzeSafely(source) {
   try { return analyzeSource(source); } catch (_) { return null; }
@@ -91,9 +94,13 @@ self.onmessage = function(event) {
         return;
       }
       try {
-        const vm = self.NailSeed.create(100000);
-        vm.loadStdlib();
-        const result = experimental ? vm.runPlainExperimental(source) : vm.runPlain(source);
+        let result;
+        if (library) result = self.NailSeed.runExperimentalStdlib(source, 2000000);
+        else {
+          const vm = self.NailSeed.create(100000);
+          vm.loadStdlib();
+          result = experimental ? vm.runPlainExperimental(source) : vm.runPlain(source);
+        }
         sendRun({id, kind, version, source, ok: true, result});
       } catch (error) {
         const original = String(error);
@@ -111,7 +118,7 @@ self.onmessage = function(event) {
       catch (error) { analysisError = String(error); }
       const diagnostic = firstDiagnostic(analysis);
       const diagnosticText = diagnostic ? formatDiagnostic(diagnostic) : null;
-      try { expanded = experimental ? self.NailSeed.expandExperimental(source) : self.NailSeed.expand(source); }
+      try { expanded = library ? self.NailSeed.expandExperimentalStdlib(source) : experimental ? self.NailSeed.expandExperimental(source) : self.NailSeed.expand(source); }
       catch (error) { expandError = String(error); }
       const expandDiagnosticText = expandError &&
         diagnostic?.phase === "parse" && /\bat token \d+\b/.test(expandError)

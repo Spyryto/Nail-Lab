@@ -242,6 +242,42 @@
           "I:13/1"
         ]
       }
+    },
+    {
+      "id": "stdlib-map-fold",
+      "title": "Dogfooding: map e fold",
+      "category": "Stdlib sperimentale",
+      "version": "stdlib",
+      "summary": "Label reali della libreria caricata separatamente, applicazione parziale e pipeline. Numeri legacy.",
+      "source": "def inc-all = map using: ( fun x -> x + 1 ) ;\ninc-all [ 1 , 2 , 3 ] ;\n[ 1 , 2 , 3 ] >> map using: ( fun x -> x * 2 ) ;\nfold using: ( fun acc x -> acc + x ) initial: 0 items: [ 1 , 2 , 3 ] ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          [
+            2,
+            3,
+            4
+          ],
+          [
+            2,
+            4,
+            6
+          ],
+          6
+        ]
+      }
+    },
+    {
+      "id": "stdlib-map-type-error",
+      "title": "Dogfooding: map richiede una funzione",
+      "category": "Stdlib sperimentale",
+      "version": "stdlib",
+      "summary": "Il checker usa le firme inferite dal sorgente della libreria, non una tabella di tipi simulata.",
+      "source": "map using: true items: [ 1 , 2 ] ;",
+      "expect": {
+        "kind": "error",
+        "phase": "type"
+      }
     }
   ]
 }

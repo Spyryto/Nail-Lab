@@ -52,7 +52,7 @@ for (const version of versions) {
 }
 
 // Experimental source is pinned independently of the official release ZIPs.
-const experimentCommit = "350694cc98171c02540cd37c926a38a130942191";
+const experimentCommit = "be5faade1bfc6573513f88843d18b5cc6ac5b76c";
 const experimentDestination = join(root, "vendor", "nailseed-vsyntax.js");
 const stamp = join(root, "vendor", "syntax-commit.txt");
 let cached = false;
@@ -67,7 +67,8 @@ if (!cached) {
       "https://github.com/Spyryto/NailLang/archive/" + experimentCommit + ".tar.gz", "--output", archive]);
     command("tar", ["-xzf", archive, "-C", temp, "--strip-components=1"]);
     await mkdir(join(temp,"build","js"),{recursive:true});
-    command("haxe", ["js.hxml"], temp);
+    command("patch", ["--batch","--fuzz=0","-o","build/stdlib-experimental.nail","stdlib.nail","experiments/syntax/stdlib-refactor.patch"],temp);
+    command("haxe", ["js.hxml","-resource","build/stdlib-experimental.nail@stdlib-experimental"], temp);
     await copyFile(join(temp,"build","js","nailseed.js"), experimentDestination);
     await writeFile(stamp,experimentCommit+"\n");
     console.log("Pinned experimental syntax runtime: " + experimentCommit);
