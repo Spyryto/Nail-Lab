@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "description": "Esempi eseguibili con le release ufficiali di Nail",
+  "description": "Esempi eseguibili con release ufficiali e con la modalità sperimentale separata",
   "examples": [
     {
       "id": "hello-061",
@@ -183,6 +183,48 @@
       "source": "nail 0.54 ;\ndef identity x = x ;\nidentity ( 21 * 2 ) ;",
       "expect": {
         "kind": "ok"
+      }
+    },
+    {
+      "id": "syntax-fraction",
+      "title": "Argomenti rinominati e frazioni",
+      "category": "Sintassi sperimentale",
+      "version": "syntax",
+      "summary": "Label pubbliche indipendenti dai binder locali; applicazione parziale e risultato razionale.",
+      "source": "nail 0.61 ;\ndef fraction numerator: ( a : Int ) denominator: ( b : Int ) = a / b ;\ndef half = fraction denominator: 2 ;\nhalf 3 ;\n3 >> fraction denominator: 2 ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          "R:3/2",
+          "R:3/2"
+        ]
+      }
+    },
+    {
+      "id": "syntax-choose",
+      "title": "Currying polimorfo",
+      "category": "Sintassi sperimentale",
+      "version": "syntax",
+      "summary": "Una funzione parzialmente applicata conserva il proprio polimorfismo.",
+      "source": "nail 0.61 ;\ndef choose first: a second: b = a ;\ndef keep = choose second: true ;\nkeep 42 ;\nkeep \" hello \" ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          "I:42/1",
+          "hello"
+        ]
+      }
+    },
+    {
+      "id": "syntax-type-error",
+      "title": "Una label non elimina il controllo dei tipi",
+      "category": "Sintassi sperimentale",
+      "version": "syntax",
+      "summary": "Un argomento Text non è un Int, anche dopo l’applicazione parziale.",
+      "source": "nail 0.61 ;\ndef fraction numerator: ( a : Int ) denominator: ( b : Int ) = a / b ;\ndef half = fraction denominator: 2 ;\nhalf \" bad \" ;",
+      "expect": {
+        "kind": "error",
+        "phase": "type"
       }
     }
   ]
