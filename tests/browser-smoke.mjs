@@ -168,7 +168,7 @@ try {
   // runtime and preserves independent drafts with explicit confirmation.
   await page.locator("#catalog-open").click();
   await page.locator("#catalog-dialog").waitFor({state:"visible",timeout:4000});
-  await page.waitForFunction(() => document.querySelectorAll("#catalog-list .catalog-card").length===14,
+  await page.waitForFunction(() => document.querySelectorAll("#catalog-list .catalog-card").length===17,
     null,{timeout:12000});
   await page.locator("#catalog-search").fill("strutturale");
   assert.equal(await page.locator("#catalog-list .catalog-card").count()>0,true);
@@ -199,6 +199,16 @@ try {
   await page.waitForFunction(() => window.NailEditor?.getValue().includes("def getName ( data : Person )"),
     null,{timeout:12000});
   assert.equal(await page.locator("#catalog-dialog").isHidden(),true);
+  await page.locator("#nail-version").selectOption("syntax");
+  await page.waitForFunction(()=>window.NailEditor?.getValue().includes("denominator: 2"),null,{timeout:12000});
+  await page.getByRole("button",{name:"Esegui",exact:true}).click();
+  await page.waitForFunction(()=>document.getElementById("run-output").textContent.includes("R:3/2"),null,{timeout:12000});
+  await page.getByRole("button",{name:"Esplora"}).click();
+  await page.getByRole("tab",{name:"Tipi e simboli"}).click();
+  await page.waitForFunction(()=>document.getElementById("types-output").textContent.includes("Int -> Ratio"),null,{timeout:12000});
+  await page.getByRole("button",{name:"Scrivi"}).click();
+  await page.locator("#nail-version").selectOption("0.61");
+  await page.waitForFunction(()=>window.NailEditor?.getValue().includes("def getName ( data : Person )"),null,{timeout:12000});
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2),true,
     "Mobile layout should not scroll horizontally");
   assert.deepEqual(errors,[],"Browser errors: "+errors.join("\n"));

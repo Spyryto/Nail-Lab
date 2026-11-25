@@ -6,7 +6,7 @@ import vm from "node:vm";
 
 const source = "nail 0.54 ;\ndef identityLab x = x ;\nidentityLab true ;";
 test("PWA shell and compilation artifacts are present", async () => {
-  for (const path of ["index.html", "styles.css", "app.js", "editor.js", "runtime-worker.js", "catalog.js", "examples.json", "sw.js", "version.json", "manifest.webmanifest", "runtime/v0.54/nailseed.js", "runtime/v0.60/nailseed.js", "runtime/v0.61/nailseed.js"]) {
+  for (const path of ["index.html", "styles.css", "app.js", "editor.js", "runtime-worker.js", "catalog.js", "examples.json", "sw.js", "version.json", "manifest.webmanifest", "runtime/v0.54/nailseed.js", "runtime/v0.60/nailseed.js", "runtime/v0.61/nailseed.js", "runtime/vsyntax/nailseed.js"]) {
     assert.ok((await stat(new URL("../dist/" + path, import.meta.url))).size > 0, path);
   }
   const html = await readFile(new URL("../dist/index.html",import.meta.url),"utf8");
@@ -16,6 +16,7 @@ test("PWA shell and compilation artifacts are present", async () => {
   assert.match(html, /id="nail-version"/);
   assert.match(html, /value="0.60"/);
   assert.match(html, /value="0.61" selected/);
+  assert.match(html, /value="syntax"/);
   assert.match(html, /id="read-open-latest"/);
   assert.match(html, /id="editor-size"/);
   assert.match(html, /id="result-card"/);
@@ -181,4 +182,31 @@ test("worker, update controller and service worker pass syntax checks", () => {
   for (const filename of ["runtime-worker.js","updates.js","storage.js","sw.js"]) {
     execFileSync(process.execPath,["--check",new URL("../dist/"+filename,import.meta.url).pathname]);
   }
+});
+
+test("experimental Worker runs, analyzes and expands the same source", async () => {
+  const runtime = await readFile(new URL("../dist/runtime/vsyntax/nailseed.js",import.meta.url),"utf8");
+  const worker = await readFile(new URL("../dist/runtime-worker.js",import.meta.url),"utf8");
+  const messages = [], sandbox = {console,URLSearchParams,location:{search:"?version=syntax"}};
+  sandbox.self=sandbox;
+  sandbox.postMessage=message=>messages.push(message);
+  const context=vm.createContext(sandbox);
+  sandbox.importScripts=path=>{
+    assert.equal(path,"./runtime/vsyntax/nailseed.js");
+    vm.runInContext(runtime,context,{timeout:15000});
+  };
+  vm.runInContext(worker,context,{timeout:10000});
+  const sample='nail 0.61 ;\ndef fraction numerator: ( a : Int ) denominator: ( b : Int ) = a / b ;\ndef half = fraction denominator: 2 ;\nhalf 3 ;';
+  sandbox.onmessage({data:{kind:"run",id:1,source:sample}});
+  assert.equal(messages[0].ok,true,JSON.stringify(messages[0]));
+  assert.deepEqual(Array.from(messages[0].result),["R:3/2"]);
+  sandbox.onmessage({data:{kind:"inspect",id:2,source:sample}});
+  assert.equal(messages[1].analysis.ok,true,JSON.stringify(messages[1]));
+  assert.equal(messages[1].analysis.symbols.find(s=>s.name==="half").signature,"Int -> Ratio");
+  assert.equal(messages[1].expandError,null,JSON.stringify(messages[1]));
+  assert.match(messages[1].expanded,/#exp_/);
+  sandbox.onmessage({data:{kind:"run",id:3,source:sample+'\nhalf " bad " ;'}});
+  assert.equal(messages[2].ok,false);
+  assert.equal(messages[2].diagnostic.phase,"type");
+  assert.equal(messages[2].diagnostic.span.line,5);
 });

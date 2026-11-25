@@ -9,7 +9,7 @@ function run(program, args) {
   if (result.error) throw result.error;
   if (result.status !== 0) throw new Error(program + " failed (" + result.status + ")");
 }
-const versions = ["0.54", "0.60", "0.61"];
+const versions = ["0.54", "0.60", "0.61", "syntax"];
 for (const version of versions) {
   try { await access(join(root, "vendor", "nailseed-v" + version + ".js")); }
   catch { throw new Error("Missing Nail v" + version + " runtime. Run npm run fetch:runtime first."); }
