@@ -4,11 +4,11 @@ import {readFile} from "node:fs/promises";
 import vm from "node:vm";
 
 const catalog = JSON.parse(await readFile(new URL("../dist/examples.json",import.meta.url),"utf8"));
-const allowed = new Set(["0.54","0.60","0.61"]);
+const allowed = new Set(["0.54","0.60","0.61","syntax"]);
 
 test("versioned catalog has unique complete entries, preserved by the offline build",async()=>{
   assert.equal(catalog.schema,1);
-  assert.equal(catalog.examples.length,14);
+  assert.equal(catalog.examples.length,17);
   const ids=new Set();
   for(const item of catalog.examples) {
     assert.match(item.id,/^[a-z0-9-]+$/);
@@ -16,7 +16,7 @@ test("versioned catalog has unique complete entries, preserved by the offline bu
     ids.add(item.id);
     assert.equal(allowed.has(item.version),true,item.id);
     assert.ok(item.title && item.summary && item.category,item.id);
-    assert.ok(item.source.startsWith("nail "+item.version+" ;"),item.id);
+    assert.ok(item.source.startsWith("nail "+(item.version==="syntax"?"0.61":item.version)+" ;"),item.id);
     assert.ok(item.expect?.kind==="ok"||item.expect?.kind==="error",item.id);
   }
   const sw=await readFile(new URL("../dist/sw.js",import.meta.url),"utf8");
