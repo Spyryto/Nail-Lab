@@ -53,7 +53,8 @@ for(const version of allowed) {
         assert.equal(msg.diagnostic?.phase,item.expect.phase,
           item.id+" "+JSON.stringify(msg));
       } else if(item.expect.result) {
-        assert.deepEqual(Array.from(msg.result),item.expect.result,item.id);
+        // Nested arrays also originate in the isolated Worker realm.
+        assert.deepEqual(JSON.parse(JSON.stringify(msg.result)),item.expect.result,item.id);
       }
     }
   });
