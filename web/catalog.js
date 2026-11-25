@@ -15,7 +15,7 @@
   }
   function selectOptions(select, values, first) {
     select.replaceChildren();
-    for (const [value,label] of [[ "all", first ], ...values.map(v => [v,v])]) {
+    for (const [value,label] of [[ "all", first ], ...values.map(v => [v,v === "syntax" ? "Sintassi sperimentale" : v])]) {
       const option=element("option",null,label);
       option.value=value;
       select.appendChild(option);
@@ -42,7 +42,7 @@
       const card = element("article","catalog-card");
       const row = element("div","catalog-card-top");
       const categoryLabel = element("span","catalog-category-label",item.category);
-      const badge = element("span","catalog-version-label","v" + item.version +
+      const badge = element("span","catalog-version-label",(item.version === "syntax" ? "Esperimento" : "v" + item.version) +
         (item.version === activeVersion ? " · attiva" : ""));
       row.append(categoryLabel,badge);
       const title = element("h3",null,item.title);
@@ -77,7 +77,7 @@
         const catalog=await response.json();
         if (catalog.schema !== 1 || !Array.isArray(catalog.examples)) throw new Error("Catalogo non valido");
         examples=catalog.examples;
-        const versions=[...new Set(examples.map(x=>x.version))].sort((a,b)=>Number(b)-Number(a));
+        const versions=[...new Set(examples.map(x=>x.version))].sort((a,b)=>a==="syntax"?-1:b==="syntax"?1:Number(b)-Number(a));
         const categories=[...new Set(examples.map(x=>x.category))].sort((a,b)=>a.localeCompare(b,"it"));
         selectOptions($("catalog-version"),versions,"Tutte le versioni");
         selectOptions($("catalog-category"),categories,"Tutti gli argomenti");
