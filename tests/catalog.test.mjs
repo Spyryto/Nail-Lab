@@ -8,7 +8,7 @@ const allowed = new Set(["0.54","0.60","0.61","syntax"]);
 
 test("versioned catalog has unique complete entries, preserved by the offline build",async()=>{
   assert.equal(catalog.schema,1);
-  assert.equal(catalog.examples.length,17);
+  assert.equal(catalog.examples.length,18);
   const ids=new Set();
   for(const item of catalog.examples) {
     assert.match(item.id,/^[a-z0-9-]+$/);

@@ -34,7 +34,7 @@ class Main {
     text("active-version", label);
     text("editor-version-label", "LABORATORIO · " + label);
     text("inspect-version-label", "STRUMENTI · " + label);
-    text("runtime-note", version == "syntax" ? "Esperimento 0.61 · label rinominate, currying e pipeline. Non è una release ufficiale." : version == "0.61"
+    text("runtime-note", version == "syntax" ? "Esperimento 0.61 · label rinominate, currying, pipeline e inferenza numerica. Non è una release ufficiale." : version == "0.61"
       ? "Novità: un campo su un parametro senza annotazione è strutturale; ( data : Person ) resta nominale."
       : version == "0.60" ? "CoreIR e consolidamento · release storica." : "La versione della lezione sui cinque costruttori.");
   }
