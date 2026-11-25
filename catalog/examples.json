@@ -226,6 +226,22 @@
         "kind": "error",
         "phase": "type"
       }
+    },
+    {
+      "id": "syntax-summ",
+      "title": "Somma senza annotazioni",
+      "category": "Sintassi sperimentale",
+      "version": "syntax",
+      "summary": "Il vincolo Add viene inferito e conservato durante l’applicazione parziale.",
+      "source": "nail 0.61 ;\ndef summ x y = x + y ;\nsumm 15 3 ;\nsumm 1.5 2.5 ;\ndef add-three = summ y: 3 ;\nadd-three 10 ;",
+      "expect": {
+        "kind": "ok",
+        "result": [
+          "I:18/1",
+          4,
+          "I:13/1"
+        ]
+      }
     }
   ]
 }
