@@ -1,4 +1,4 @@
-import {mkdtemp, mkdir, readdir, copyFile, rm, access} from "node:fs/promises";
+import {mkdtemp, mkdir, readdir, copyFile, rm, access, readFile, writeFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join, resolve} from "node:path";
 import {spawnSync} from "node:child_process";
@@ -7,8 +7,8 @@ const root = resolve(import.meta.dirname, "..");
 const versions = ["0.54", "0.60", "0.61"];
 
 
-function command(program, args) {
-  const result = spawnSync(program, args, {stdio: "inherit"});
+function command(program, args, cwd) {
+  const result = spawnSync(program, args, {stdio: "inherit", cwd});
   if (result.error) throw result.error;
   if (result.status !== 0) throw new Error(program + " failed (" + result.status + ")");
 }
@@ -49,4 +49,27 @@ for (const version of versions) {
   } finally {
     await rm(temp, {recursive:true, force:true});
   }
+}
+
+// Experimental source is pinned independently of the official release ZIPs.
+const experimentCommit = "032b7f30da93350555ddf3f1deb48ffd126d7e5e";
+const experimentDestination = join(root, "vendor", "nailseed-vsyntax.js");
+const stamp = join(root, "vendor", "syntax-commit.txt");
+let cached = false;
+if (process.argv.includes("--cached")) {
+  try { await access(experimentDestination); cached = (await readFile(stamp,"utf8")).trim() === experimentCommit; } catch {}
+}
+if (!cached) {
+  const temp = await mkdtemp(join(tmpdir(), "nail-lab-syntax-"));
+  try {
+    const archive = join(temp, "source.tar.gz");
+    command("curl", ["--fail", "--location", "--silent", "--show-error", "--retry", "3",
+      "https://github.com/Spyryto/NailLang/archive/" + experimentCommit + ".tar.gz", "--output", archive]);
+    command("tar", ["-xzf", archive, "-C", temp, "--strip-components=1"]);
+    await mkdir(join(temp,"build","js"),{recursive:true});
+    command("haxe", ["js.hxml"], temp);
+    await copyFile(join(temp,"build","js","nailseed.js"), experimentDestination);
+    await writeFile(stamp,experimentCommit+"\n");
+    console.log("Pinned experimental syntax runtime: " + experimentCommit);
+  } finally { await rm(temp,{recursive:true,force:true}); }
 }
